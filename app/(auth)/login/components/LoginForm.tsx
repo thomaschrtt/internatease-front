@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -12,8 +14,31 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import SignInWithGoogleButton from "@/components/login/SignInGoogleButton";
 import {login} from "@/components/login/actions";
+import {toast} from "@/hooks/use-toast";
+import {useState} from "react";
 
 export function LoginForm() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append('email', email)
+        formData.append('password', password)
+
+        const result = await login(formData)
+
+        if (result?.error) {
+            toast({
+                title: "Erreur lors de la connexion",
+                description: result.error,
+            })
+        }
+    }
+
     return (
         <Card className="mx-auto max-w-sm">
             <CardHeader>
@@ -23,7 +48,7 @@ export function LoginForm() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form action="">
+                <form onSubmit={handleSubmit}>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
@@ -32,6 +57,7 @@ export function LoginForm() {
                                 name="email"
                                 type="email"
                                 placeholder="m@example.com"
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                         </div>
@@ -42,9 +68,10 @@ export function LoginForm() {
                                     Forgot your password?
                                 </Link>
                             </div>
-                            <Input id="password" name="password" type="password" required />
+                            <Input id="password" name="password" type="password" required
+                                   onChange={(e) => setPassword(e.target.value)} />
                         </div>
-                        <Button type="submit" formAction={login} className="w-full">
+                        <Button type="submit" className="w-full">
                             Login
                         </Button>
                         <SignInWithGoogleButton/>

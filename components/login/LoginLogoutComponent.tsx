@@ -26,7 +26,7 @@ const LoginButton = () => {
                     setUser(null);
                 }}
             >
-                Log out
+                Déconnexion
             </Button>
         );
     }

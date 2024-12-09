@@ -6,10 +6,11 @@ import {usePathname, useRouter} from 'next/navigation'
 import {Button} from "@/components/ui/button"
 import {Sheet, SheetContent, SheetTrigger} from "@/components/ui/sheet"
 import {cn} from "@/lib/utils"
-import {Bed, Home, LogOut, Menu, Users} from 'lucide-react'
+import {Bed, Home, Menu, Users} from 'lucide-react'
 import {SearchBar} from "@/components/search-bar";
 import axios from "@/api/Axios";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import LoginLogoutComponent from "@/components/login/LoginLogoutComponent";
 
 const sidebarItems = [
     {icon: Home, label: 'Gestion', href: '/dashboard'},
@@ -146,13 +147,8 @@ export function LayoutComponent({children}: { children: React.ReactNode }) {
                                     <span>{item.label}</span>
                                 </Link>
                             ))}
-                            <div className="mt-auto">
-                                <Button variant="ghost" className="w-full justify-start" asChild>
-                                    <Link href="/logout" className="flex items-center space-x-3">
-                                        <LogOut className="h-5 w-5"/>
-                                        <span>Déconnexion</span>
-                                    </Link>
-                                </Button>
+                            <div className="mt-auto flex justify-center items-center py-4">
+                                <LoginLogoutComponent/>
                             </div>
                         </div>
                     </aside>
