@@ -41,8 +41,6 @@ export function Etudiants() {
     const [searchTerm, setSearchTerm] = useState('')
     const [classFilter, setClassFilter] = useState('all')
     const [genreFilter, setGenderFilter] = useState('all')
-
-    const [selectedStudent, setSelectedStudent] = useState<Etudiant | null>(null)
     const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false)
     const [newStudent, setNewStudent] = useState<Partial<Etudiant>>({})
 

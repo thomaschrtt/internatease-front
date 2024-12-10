@@ -4,17 +4,15 @@ import {AlertCircle} from "lucide-react";
 import {useRouter} from "next/navigation";
 
 type RoomCardProps = {
-    room: any;
+    room: Chambre;
     handleRoomHover: (roomId: string) => void;
     setHoveredRoom: (roomId: string | null) => void;
-    hoveredRoomStudents: any[];
 };
 
 export const RoomCard = ({
                              room,
                              handleRoomHover,
                              setHoveredRoom,
-                             hoveredRoomStudents,
                          }: RoomCardProps) => {
     const router = useRouter(); // Use the Next.js router
 
@@ -27,7 +25,7 @@ export const RoomCard = ({
                 <TooltipTrigger asChild>
                     <Card
                         className="cursor-pointer h-[200px] flex flex-col justify-between" // Adjust card height to align content
-                        onMouseEnter={() => handleRoomHover(room.id)}
+                        onMouseEnter={() => handleRoomHover(room.id.toString())}
                         onMouseLeave={() => setHoveredRoom(null)}
                         onClick={handleCardClick} // Handle the click event to redirect
                     >

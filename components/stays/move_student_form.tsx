@@ -7,10 +7,10 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import axios from "@/api/Axios";
 
 type MoveStudentFormProps = {
-    stay: any;
+    stay: Occupation;
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
-    allRooms: any[];
+    allRooms: Chambre[];
     handleMovedStudent: () => void;
 }
 
@@ -25,7 +25,7 @@ export const MoveStudentForm = ({stay, isOpen, setIsOpen, allRooms, handleMovedS
     }
 
 
-    const [rooms, setRooms] = useState<any[]>([]);
+    const [rooms, setRooms] = useState<Chambre[]>([]);
     const [newRoom, setNewRoom] = useState('');
     const [startDate, setStartDate] = useState(formatDate(new Date()));
     const [isDefinitive, setIsDefinitive] = useState(false);
@@ -41,7 +41,7 @@ export const MoveStudentForm = ({stay, isOpen, setIsOpen, allRooms, handleMovedS
         if (!startDate) return; // No start date yet, don't fetch
         try {
             const response = await fetch(
-                `http://localhost/InternatEase/public/api/available-rooms?date_debut=${startDate}&date_fin=${stay.date_fin.split("T")[0]}`,
+                `http://localhost/InternatEase/public/api/available-rooms?date_debut=${startDate}&date_fin=${stay.date_fin.toString().split("T")[0]}`,
                 {
                     credentials: 'include',
                 }
@@ -49,7 +49,6 @@ export const MoveStudentForm = ({stay, isOpen, setIsOpen, allRooms, handleMovedS
             const data = await response.json();
             let availableRooms = allRooms.filter(room => Object.keys(data).includes(room.id.toString()));
             availableRooms.map(room => {
-                    room.occupe = data[room.id]
                     return room;
                 }
             )
@@ -104,7 +103,7 @@ export const MoveStudentForm = ({stay, isOpen, setIsOpen, allRooms, handleMovedS
                             <SelectContent>
                                 {rooms.map((room) => (
                                     <SelectItem key={room.id} value={room.id.toString()}>
-                                        Chambre {room.numero_chambre} - {room.capacite - room.occupe} place(s)
+                                        Chambre {room.numero_chambre} - {room.capacite} place(s)
                                     </SelectItem>
                                 ))}
                             </SelectContent>

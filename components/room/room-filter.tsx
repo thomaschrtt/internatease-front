@@ -2,8 +2,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Input} from "@/components/ui/input";
 
 type RoomFilterProps = {
-    floors: any[];
-    blocks: any[];
+    floors: Etage[];
+    blocks: Bloc[];
     filter: { floor: string; block: string; status: string; gender: string };
     searchTerm: string;
     setFilter: (filter: any) => void;

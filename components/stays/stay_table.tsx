@@ -93,7 +93,7 @@ export function StaysTable({stays, onDelete, onEdit, allRooms, handleMovedStuden
                 <EditDepartureDateForm
                     isOpen={isEditModalOpen}
                     setIsOpen={setIsEditModalOpen}
-                    currentDateFin={selectedStay} // Pass the current date_fin
+                    currentDateFin={{date_fin: selectedStay.date_fin.toString()}} // Pass the current date_fin
                     onSubmit={handleEditSubmit}
                 />
             )}

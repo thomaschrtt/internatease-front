@@ -7,7 +7,7 @@ import {useEffect, useState} from "react";
 type EditDepartureDateFormProps = {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
-    currentDateFin: any;
+    currentDateFin: { date_fin: string };
     onSubmit: (newDateFin: string) => void;
 };
 

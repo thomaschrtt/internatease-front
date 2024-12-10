@@ -4,9 +4,10 @@ import {useRouter} from "next/navigation";
 import {createClient} from "@/utils/supabase/client";
 import {Button} from "@/components/ui/button";
 import {signout} from "@/components/login/actions";
+import {User} from "@supabase/auth-js";
 
 const LoginButton = () => {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
     const supabase = createClient();
     useEffect(() => {

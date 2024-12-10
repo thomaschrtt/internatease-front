@@ -10,12 +10,12 @@ import {CreateRoomForm} from "@/components/room/create-room-form";
 import axios from "@/api/Axios";
 
 export function Chambres() {
-    const [rooms, setRooms] = useState<any[]>([])
+    const [rooms, setRooms] = useState<Chambre[]>([])
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null)
-    const [hoveredRoomStudents, setHoveredRoomStudents] = useState<any[]>([])
+    const [hoveredRoomStudents, setHoveredRoomStudents] = useState<Etudiant[]>([])
     const [filter, setFilter] = useState({ floor: 'all', block: 'all', status: 'all', gender: 'all' });
-    const [floors, setFloors] = useState<any[]>([]) // Dynamically fetched floors
-    const [blocks, setBlocks] = useState<any[]>([]) // Dynamically fetched blocks
+    const [floors, setFloors] = useState<Etage[]>([]) // Dynamically fetched floors
+    const [blocks, setBlocks] = useState<Bloc[]>([]) // Dynamically fetched blocks
     const [searchTerm, setSearchTerm] = useState('')
     const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false)
 
@@ -50,7 +50,7 @@ export function Chambres() {
 
 
     const handleRoomHover = (roomId: string) => {
-        const room = rooms.find(r => r.id === roomId);
+        const room = rooms.find(r => r.id.toString() === roomId);
         if (room) {
             setHoveredRoomStudents(room.etudiants); // Directly use the etudiants from the room object
         }
