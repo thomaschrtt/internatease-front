@@ -1,14 +1,12 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import Link from 'next/link'
-import {usePathname, useRouter} from 'next/navigation'
+import {usePathname} from 'next/navigation'
 import {Button} from "@/components/ui/button"
 import {Sheet, SheetContent, SheetTrigger} from "@/components/ui/sheet"
 import {cn} from "@/lib/utils"
 import {Bed, Home, Menu, Users} from 'lucide-react'
-import {SearchBar} from "@/components/search-bar";
-import axios from "@/api/Axios";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import LoginLogoutComponent from "@/components/login/LoginLogoutComponent";
 
@@ -23,68 +21,7 @@ const queryClient = new QueryClient()
 
 export function LayoutComponent({children}: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const [searchTerm, setSearchTerm] = useState(''); // Stocker l'entrée utilisateur
-    const [suggestions, setSuggestions] = useState([]); // Stocker les suggestions
-    const [rooms, setRooms] = useState([]);
-    const [students, setStudents] = useState([]);
-    const [isSearchOpen, setIsSearchOpen] = useState(false)
     const pathname = usePathname()
-    const router = useRouter(); // Correct router import
-
-    useEffect(() => {
-        fetchRooms();
-        fetchStudents();
-    }, []); // Appel initial pour récupérer les chambres et étudiants
-
-    useEffect(() => {
-        if (searchTerm.length > 0) {
-            setIsSearchOpen(true);  // Assure que le popover reste ouvert pendant la recherche
-            const isRoomNumber = !isNaN(Number(searchTerm)); // Déterminer si l'entrée est un numéro de chambre
-
-            if (isRoomNumber) {
-                const filteredRooms = rooms.filter((room) =>
-                    room.numero_chambre.includes(searchTerm)
-                );
-                console.log("Filtered rooms:", filteredRooms);
-                setSuggestions(filteredRooms.map(room => ({href: getHrefForRoom(room), ...room})));
-            } else {
-                const filteredStudents = students.filter((student) =>
-                    student.nom.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-                console.log("Filtered students:", filteredStudents);
-                setSuggestions(filteredStudents.map(student => ({href: getHrefForEtudiant(student), ...student})));
-            }
-        } else {
-            setSuggestions([]);  // Mettre à jour les suggestions avec rien si le champ est vide
-        }
-    }, [rooms, searchTerm, students]);
-
-
-    const getHrefForRoom = (room) => {
-        return '/chambres/' + room.id;
-    }
-
-    const getHrefForEtudiant = (etu) => {
-        return '/etudiants/' + etu.id;
-    }
-
-    const fetchRooms = async () => {
-        try {
-            const response = await axios.get('/api/chambres');
-            setRooms(response.data.member); // Set the rooms state with the transformed data
-        } catch (error) {
-            console.error('Error fetching rooms:', error);
-        }
-    };
-
-    const fetchStudents = async () => {
-        try {
-            const response = await axios.get('/api/etudiants');
-            setStudents(response.data.member)
-        } catch (error) {
-            console.error('Error fetching students:', error)
-        }
-    }
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -124,9 +61,6 @@ export function LayoutComponent({children}: { children: React.ReactNode }) {
                                 <Bed className="h-6 w-6"/>
                                 <span className="inline-block font-bold">InternatEase</span>
                             </Link>
-                        </div>
-                        <div className="flex flex-1 items-center space-x-4 md:justify-end">
-                            <SearchBar/>
                         </div>
                     </div>
                 </nav>
