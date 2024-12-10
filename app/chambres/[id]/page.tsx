@@ -6,7 +6,7 @@ export default function DetailChambrePage({ params }: { params: { id: number } }
         <div>
             <LayoutComponent>
                 <RoomDetailsComponent
-                    idRequest ={params.id}
+                    id={params.id}
                 />
             </LayoutComponent>
         </div>

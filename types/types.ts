@@ -1,76 +1,65 @@
 // Type pour l'entité Bloc
 type Bloc = {
-    id: number | null;
-    nom_bloc: string | null;
-    etage: Etage | null;
+    id: number;
+    nom_bloc: string;
+    etage: Etage;
     chambres: Chambre[]; // Liste de chambres
 };
 
 // Type pour l'entité Chambre
 type Chambre = {
-    id: number | null;
-    numero_chambre: number | null;
-    capacite: number | null;
+    id: number;
+    numero_chambre: number;
+    capacite: number;
     type_special: string | null;
-    bloc: Bloc | null;
-    id_block: number | null;
+    bloc: Bloc;
+    id_block: number;
     etudiants: Etudiant[]; // Liste d'étudiants
     occupations: Occupation[]; // Liste d'occupations
 };
 
 // Type pour l'entité Classe
 type Classe = {
-    id: number | null;
-    nom_classe: string | null;
+    id: number;
+    nom_classe: string;
     stages: Stage[]; // Liste de stages
 };
 
 // Type pour l'entité Etage
 type Etage = {
-    id: number | null;
-    numero_etage: number | null;
+    id: number;
+    numero_etage: number;
     genre: string | null; // Enum Genre en tant que string
 };
 
 // Type pour l'entité Etudiant
 type Etudiant = {
-    id: number | null;
-    nom: string | null;
-    prenom: string | null;
+    id: number;
+    nom: string;
+    prenom: string;
     internat_weekend: boolean;
-    genre: string | null; // Enum Genre en tant que string
-    chambre: Chambre | null;
-    idChambre: number | null;
+    genre: string;
     occupations: Occupation[]; // Liste d'occupations
-    num_etu: number | null;
-    classe: Classe | null;
-    classe_id: number | null;
+    num_etu: number;
+    classe: Classe;
+    classe_id: number;
 };
 
 // Type pour l'entité Occupation
 type Occupation = {
-    id: number | null;
-    date_debut: Date | null;
-    date_fin: Date | null;
-    etudiant: Etudiant | null;
-    etudiant_id: number | null;
-    chambre: Chambre | null;
-    chambre_id: number | null;
+    id: number;
+    date_debut: Date;
+    date_fin: Date;
+    etudiant: Etudiant;
+    etudiant_id: number;
+    chambre: Chambre;
+    chambre_id: number;
 };
 
 // Type pour l'entité Stage
 type Stage = {
-    id: number | null;
-    date_debut: Date | null;
-    date_fin: Date | null;
-    classe: Classe | null;
-};
-
-// Type pour l'entité Utilisateur
-type Utilisateur = {
-    id: number | null;
-    email: string | null;
-    roles: string[];
-    password: string | null; // Hashed password
-    plainPassword: string | null;
+    id: number;
+    date_debut: Date;
+    date_fin: Date;
+    classe: Classe;
 };

@@ -3,25 +3,8 @@ import {Chart} from "react-google-charts";
 import {useRouter} from "next/navigation"; // Assuming you're using Next.js's router
 import {parseISO} from 'date-fns';
 
-type Stay = {
-    id: number;
-    date_debut: string;
-    date_fin: string;
-    etudiant: {
-        id: number;
-        nom: string;
-        prenom: string;
-    };
-};
-
-type Room = {
-    id: number;
-    numero_chambre: string;
-    capacite: number;
-};
-
 type RoomDetailsProps = {
-    stays: Stay[];
+    stays: Occupation[];
 };
 
 export function RoomGanttChart({ stays }: RoomDetailsProps) {
@@ -41,8 +24,8 @@ export function RoomGanttChart({ stays }: RoomDetailsProps) {
 
         const rows = stays.map(stay => [
             `${stay.etudiant.prenom} ${stay.etudiant.nom}`,
-            parseISO(stay.date_debut),
-            parseISO(stay.date_fin),
+            parseISO(stay.date_debut.toString()),
+            parseISO(stay.date_fin.toString()),
         ]);
 
         setChartData([columns, ...rows]);
@@ -74,6 +57,7 @@ export function RoomGanttChart({ stays }: RoomDetailsProps) {
                         {
                             eventName: 'select', // Event when a data point is clicked
                             callback: ({ chartWrapper }) => {
+                                if (!chartWrapper) return;
                                 const chart = chartWrapper.getChart();
                                 const selection = chart.getSelection();
                                 if (selection.length > 0) {

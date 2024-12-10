@@ -12,7 +12,7 @@ type RoomSearchProps = {
     searchEndDate: Date | undefined
     setSearchStartDate: (date: Date | undefined) => void
     setSearchEndDate: (date: Date | undefined) => void
-    availableRooms: Room[]
+    availableRooms: Chambre[]
     searchAvailableRooms: () => void
     handleRoomClick: (roomId: number, roomNumber: string) => void // New function to handle room click
 }
@@ -90,12 +90,12 @@ export function RoomSearch({
                     <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {availableRooms.map(room => {
-                            const remainingPlaces = room.capacite - room.occupe;
+                            const remainingPlaces = room.capacite;
                             return (
                                 <Card
                                     key={room.id}
                                     className="shadow-lg transition transform hover:scale-105 hover:shadow-xl hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => handleRoomClick(room.id, room.numero_chambre)}
+                                    onClick={() => handleRoomClick(room.id, room.numero_chambre.toString())}
                                 >
                                     <CardHeader>
                                         <CardTitle>Chambre {room.numero_chambre} - Etage {room.bloc.etage.genre} </CardTitle>

@@ -54,7 +54,8 @@ export function Etudiants() {
 
 
     const filterStudents = () => {
-        let filtered = students.filter(student =>
+        if (!students) return
+        const filtered = students.filter(student =>
             (student.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 student.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 student.num_etu.toString().includes(searchTerm)) &&
@@ -102,7 +103,7 @@ export function Etudiants() {
         document.body.removeChild(link)
     }
 
-    if (studentLoading || classLoading) {
+    if (studentLoading || classLoading || !students || !classes) {
         return <div>Loading...</div>
     }
     return (

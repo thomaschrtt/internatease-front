@@ -7,9 +7,10 @@ import {AddStayForm} from "@/components/stays/stay_add";
 import {Separator} from "@/components/ui/separator"
 import axios from "@/api/Axios";
 import {useCustomMutation, useCustomQuery} from "@/tanstackQuery/queryGenerator";
-import {addStay, editStay, fetchRooms, fetchStays, fetchStudents, searchAvailableStudents} from "@/api/sejourAPI";
+import {addStay, editStay, fetchRooms, fetchStays, searchAvailableStudents} from "@/api/sejourAPI";
 import {toast} from "@/hooks/use-toast";
 import {formatDate} from "@/lib/utils";
+import {fetchStudents} from "@/api/studentAPI";
 
 
 export function StaysManagement() {
@@ -104,6 +105,9 @@ export function StaysManagement() {
             }
             await fetchStudents();
             const availableStudentsIds = await response.data;
+            if (!students) {
+                return;
+            }
             const availableStudents = students.filter(student => Object.keys(availableStudentsIds).includes(student.id.toString()));
             setAvailableStudents(availableStudents);
 
@@ -124,9 +128,11 @@ export function StaysManagement() {
             }
 
             const availableRoomIds = await response.data;
+            if (!rooms) {
+                return;
+            }
             const availableRooms = rooms.filter(room => Object.keys(availableRoomIds).includes(room.id.toString()));
             availableRooms.map(room => {
-                    room.occupe = availableRoomIds[room.id]
                     return room;
                 }
             )
@@ -159,12 +165,15 @@ export function StaysManagement() {
     }
 
     const handleRoomClick = async (roomId: number) => {
+        if (!rooms) {
+            return;
+        }
         setNewStay({
             ...newStay,
             chambre_id: roomId,
             chambre: rooms.find(room => room.id === roomId),
-            date_debut: searchStartDate ? searchStartDate : null,
-            date_fin: searchEndDate ? searchEndDate : null
+            date_debut: searchStartDate,
+            date_fin: searchEndDate
         });
         setIsAddStayModalOpen(true);
     };
@@ -189,6 +198,10 @@ export function StaysManagement() {
 
     const handleMovedStudent = () => {
         fetchStays()
+    }
+
+    if (staysLoading || roomsLoading || studentsLoading || availableStudentsLoading || !stays || !rooms || !students) {
+        return <div>Loading...</div>
     }
 
     return (

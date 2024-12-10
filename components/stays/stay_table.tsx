@@ -7,25 +7,25 @@ import {MoveStudentForm} from "@/components/stays/move_student_form";
 import {EditDepartureDateForm} from "@/components/stays/editdepartureform";
 
 type StaysTableProps = {
-    stays: any[];
+    stays: Occupation[];
     onDelete: (stayId: number) => void; // Function to handle delete
     onEdit: (stayId: number, newDateFin: string) => void; // Function to handle edit
-    allRooms: any[];
+    allRooms: Chambre[];
     handleMovedStudent: () => void;
 }
 
 export function StaysTable({stays, onDelete, onEdit, allRooms, handleMovedStudent}: StaysTableProps) {
-    const [selectedStay, setSelectedStay] = useState<any | null>(null); // State to store the stay for the move
+    const [selectedStay, setSelectedStay] = useState<Occupation | null>(null); // State to store the stay for the move
     const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const openMoveModal = (stay: any) => {
+    const openMoveModal = (stay: Occupation) => {
         setSelectedStay(stay);
         setIsMoveModalOpen(true);
     };
 
 
-    const openEditModal = (stay: any) => {
+    const openEditModal = (stay: Occupation) => {
         setSelectedStay(stay);
         setIsEditModalOpen(true);
     };
@@ -55,9 +55,9 @@ export function StaysTable({stays, onDelete, onEdit, allRooms, handleMovedStuden
                         <TableRow key={stay.id}>
                             <TableCell>{stay.etudiant.nom}</TableCell>
                             <TableCell>{stay.chambre.numero_chambre}</TableCell>
-                            <TableCell>{format(parseISO(stay.date_debut), 'PP')}</TableCell>
+                            <TableCell>{format(parseISO(stay.date_debut.toString()), 'PP')}</TableCell>
                             <TableCell>
-                                {format(parseISO(stay.date_fin), 'PP')}
+                                {format(parseISO(stay.date_fin.toString()), 'PP')}
                                 <Button variant="ghost" size="icon" onClick={() => openEditModal(stay)}>
                                     <Pen className="h-4 w-4"/>
                                     <span className="sr-only">Modifier la date de sortie</span>

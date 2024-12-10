@@ -7,9 +7,9 @@ import {formatDate} from "@/lib/utils";
 type AddStayFormProps = {
     isAddStayModalOpen: boolean
     setIsAddStayModalOpen: (open: boolean) => void
-    students: any[]
-    newStay: Occupation
-    setNewStay: (stay: any) => void
+    students: Etudiant[]
+    newStay: Partial<Occupation>
+    setNewStay: (stay: Occupation) => void
     handleAddStay: (e: React.FormEvent) => void
 }
 
@@ -25,7 +25,7 @@ export function AddStayForm({
         <Dialog open={isAddStayModalOpen} onOpenChange={setIsAddStayModalOpen}>
             <DialogContent>
                 <DialogTitle>
-                    Étudiant à rajouter dans la chambre {newStay.chambre?.numero_chambre} du {formatDate(newStay.date_debut)} au {formatDate(newStay.date_fin)}
+                    Étudiant à rajouter dans la chambre {newStay.chambre?.numero_chambre} du {formatDate(newStay.date_debut || null)} au {formatDate(newStay.date_fin || null)}
                 </DialogTitle>
 
                 <form onSubmit={handleAddStay} className="space-y-4">

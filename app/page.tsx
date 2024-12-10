@@ -20,7 +20,7 @@ export default function Home() {
                             <CardTitle>Gestion des Chambres</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <CardDescription>Optimisez l'attribution et la gestion des chambres de votre
+                            <CardDescription>Optimisez l&#39;attribution et la gestion des chambres de votre
                                 internat.</CardDescription>
                         </CardContent>
                     </Card>
@@ -70,7 +70,7 @@ export default function Home() {
                         <Link href="/privacy" className="text-blue-300 hover:text-blue-100 mr-4">Politique de
                             confidentialité</Link>
                         <Link href="/terms" className="text-blue-300 hover:text-blue-100">Conditions
-                            d'utilisation</Link>
+                            d&#39;utilisation</Link>
                     </div>
                 </div>
             </footer>
