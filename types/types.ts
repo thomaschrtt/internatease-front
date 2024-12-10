@@ -21,7 +21,7 @@ type Chambre = {
 // Type pour l'entité Classe
 type Classe = {
     id: number | null;
-    nomClasse: string | null;
+    nom_classe: string | null;
     stages: Stage[]; // Liste de stages
 };
 
@@ -42,17 +42,9 @@ type Etudiant = {
     chambre: Chambre | null;
     idChambre: number | null;
     occupations: Occupation[]; // Liste d'occupations
-    numEtu: number | null;
+    num_etu: number | null;
     classe: Classe | null;
-    idClasse: number | null;
-};
-
-// Type pour l'entité Notification
-type Notification = {
-    id: number | null;
-    room_id: number | null;
-    message: string | null;
-    date_created: Date | null;
+    classe_id: number | null;
 };
 
 // Type pour l'entité Occupation

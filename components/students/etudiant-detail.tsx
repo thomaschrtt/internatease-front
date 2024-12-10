@@ -2,18 +2,9 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-type Student = {
-    prenom: string;
-    nom: string;
-    classe: { nomClasse: string };
-    numEtu: string;
-    genre: string;
-    internat_weekend: boolean;
-};
-
 interface StudentDetailsDialogProps {
-    selectedStudent: Student | null;
-    setSelectedStudent: (student: Student | null) => void;
+    selectedStudent: Etudiant | null;
+    setSelectedStudent: (student: Etudiant | null) => void;
 }
 
 export const StudentDetailsDialog: React.FC<StudentDetailsDialogProps> = ({
@@ -35,11 +26,11 @@ export const StudentDetailsDialog: React.FC<StudentDetailsDialogProps> = ({
                     </div>
                     <div>
                         <Label>Classe</Label>
-                        <div>{selectedStudent.classe?.nomClasse || "Pas de classe"}</div>
+                        <div>{selectedStudent.classe?.nom_classe || "Pas de classe"}</div>
                     </div>
                     <div>
                         <Label>Numéro Etudiant</Label>
-                        <div>{selectedStudent.numEtu}</div>
+                        <div>{selectedStudent.num_etu}</div>
                     </div>
                     <div>
                         <Label>Genre</Label>

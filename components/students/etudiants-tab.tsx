@@ -4,26 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from 'lucide-react';
 
-type Student = {
-    id: string;
-    prenom: string;
-    nom: string;
-    classe?: { nomClasse: string };
-    numEtu: string;
-    genre: string;
-    internat_weekend: boolean;
-    chambre?: { numero_chambre: string };
-};
 
 interface StudentTableProps {
-    filteredStudents: Student[];
-    setSelectedStudent: (student: Student) => void;
-    handleDeleteStudent: (id: string) => void;
+    filteredStudents: Etudiant[];
+    handleDeleteStudent: (id: number) => void;
 }
 
 export const StudentTable: React.FC<StudentTableProps> = ({
                                                               filteredStudents,
-                                                              setSelectedStudent,
                                                               handleDeleteStudent
                                                           }) => {
     return (
@@ -42,8 +30,8 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                 {filteredStudents.map((student) => (
                     <TableRow key={student.id}>
                         <TableCell>{student.prenom} {student.nom}</TableCell>
-                        <TableCell>{student.classe?.nomClasse || "Aucune"}</TableCell>
-                        <TableCell>{student.numEtu}</TableCell>
+                        <TableCell>{student.classe?.nom_classe || "Aucune"}</TableCell>
+                        <TableCell>{student.num_etu}</TableCell>
                         <TableCell>{student.genre}</TableCell>
                         <TableCell>
                             <Badge variant={student.internat_weekend ? "default" : "secondary"}>
@@ -52,9 +40,6 @@ export const StudentTable: React.FC<StudentTableProps> = ({
                         </TableCell>
                         <TableCell>
                             <div className="flex space-x-2">
-                                <Button variant="ghost" size="icon" onClick={() => setSelectedStudent(student)}>
-                                    <Edit className="h-4 w-4" />
-                                </Button>
                                 <Button variant="ghost" size="icon" onClick={() => handleDeleteStudent(student.id)}>
                                     <Trash2 className="h-4 w-4" />
                                 </Button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,9 @@ type StudentFiltersProps = {
     isAddStudentModalOpen: boolean;
     setIsAddStudentModalOpen: (value: boolean) => void;
     handleAddStudent: (e: React.FormEvent) => void;
-    newStudent: any;
+    newStudent: Partial<Etudiant>;
     setNewStudent: (value: any) => void;
-    classes: { id: number; nomClasse: string }[];
+    classes: Classe[];
     exportToCSV: () => void;
 };
 
@@ -34,6 +34,14 @@ export const StudentFilters: React.FC<StudentFiltersProps> = ({
                                                                   classes,
                                                                   exportToCSV,
                                                               }) => {
+    const initNewStudent: () => void = () => {
+        setNewStudent({internat_weekend: false});
+    }
+
+    useEffect(() => {
+        initNewStudent();
+    } , [isAddStudentModalOpen]);
+
     return (
         <div className="mb-4 flex flex-wrap gap-2">
             <Input
@@ -51,7 +59,7 @@ export const StudentFilters: React.FC<StudentFiltersProps> = ({
                     <SelectItem value="all">Toutes les Classes</SelectItem>
                     {classes.map((classe) => (
                         <SelectItem key={`filter-${classe.id}`} value={classe.id.toString()}>
-                            {classe.nomClasse}
+                            {classe.nom_classe}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -98,14 +106,14 @@ export const StudentFilters: React.FC<StudentFiltersProps> = ({
                         </div>
                         <div>
                             <Label htmlFor="class">Classe</Label>
-                            <Select onValueChange={(value) => setNewStudent((prev) => ({ ...prev, idClasse: parseInt(value) }))}>
+                            <Select onValueChange={(value) => setNewStudent((prev) => ({ ...prev, classe_id: parseInt(value) }))}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selectionner une classe" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {classes.map((classe) => (
                                         <SelectItem key={classe.id} value={classe.id.toString()}>
-                                            {classe.nomClasse}
+                                            {classe.nom_classe}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -115,8 +123,8 @@ export const StudentFilters: React.FC<StudentFiltersProps> = ({
                             <Label htmlFor="numEtu">Numéro Etudiant</Label>
                             <Input
                                 id="numEtu"
-                                value={newStudent.numEtu || ''}
-                                onChange={(e) => setNewStudent((prev) => ({ ...prev, numEtu: e.target.value }))}
+                                value={newStudent.num_etu || ''}
+                                onChange={(e) => setNewStudent((prev) => ({ ...prev, num_etu: e.target.value }))}
                                 required
                             />
                         </div>
@@ -135,7 +143,7 @@ export const StudentFilters: React.FC<StudentFiltersProps> = ({
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="internat_weekend"
-                                checked={newStudent.internat_weekend || false}
+                                checked={newStudent.internat_weekend ? newStudent.internat_weekend : false}
                                 onCheckedChange={(checked) =>
                                     setNewStudent((prev) => ({ ...prev, internat_weekend: checked as boolean }))
                                 }
