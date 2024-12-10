@@ -8,7 +8,6 @@ const useCustomQuery = <T>(
     return useQuery<T>({
         queryKey: queryKeys,
         queryFn,
-        gcTime: 0,
         retry: false,
         ...options,
     });
