@@ -1,29 +1,37 @@
 import axios from "@/api/Axios";
+import {createClient} from "@/utils/supabase/client";
 
-export const fetchStays = async () => {
+export const fetchStays: () => Promise<Occupation[]> = async () => {
+    const supabase = await createClient();
     try {
-        const response = await axios.get('/api/occupations');
-       return response.data.member
+        const {data: sejour, error} = await supabase
+            .from('occupation')
+            .select('*')
+        if (error) {
+            console.error('Error fetching stays:', error)
+            return []
+        }
+        return sejour as Occupation[]
     } catch (error) {
         console.error('Error fetching stays:', error)
+        return []
     }
 }
 
-export const fetchRooms = async () => {
+export const fetchRooms: () => Promise<Chambre[]> = async () => {
+    const supabase = await createClient();
     try {
-        const response = await axios.get('/api/chambres');
-        return response.data.member
+        const {data: chambre, error} = await supabase
+            .from('chambre')
+            .select('*')
+        if (error) {
+            console.error('Error fetching rooms:', error)
+            return []
+        }
+        return chambre as Chambre[]
     } catch (error) {
         console.error('Error fetching rooms:', error)
-    }
-}
-
-export const fetchStudents = async () => {
-    try {
-        const response = await axios.get('/api/etudiants');
-        return response.data.member
-    } catch (error) {
-        console.error('Error fetching students:', error)
+        return []
     }
 }
 
