@@ -1,18 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { addDays, format } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from 'react-day-picker'
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import {useState} from 'react'
+import {addDays, format} from 'date-fns'
+import {fr} from 'date-fns/locale'
+import {Calendar as CalendarIcon} from "lucide-react"
+import {DateRange} from 'react-day-picker'
+import {cn} from "@/lib/utils"
+import {Button} from "@/components/ui/button"
+import {Calendar} from "@/components/ui/calendar"
+import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 
 export function ImprovedDatePickerComponent({ onSearch }: { onSearch: (range: DateRange | undefined) => void }) {
   const [date, setDate] = useState<DateRange | undefined>({

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Chart } from "react-google-charts";
-import { useRouter } from "next/navigation"; // Assuming you're using Next.js's router
-import { parseISO } from 'date-fns';
+import React, {useEffect, useState} from "react";
+import {Chart} from "react-google-charts";
+import {useRouter} from "next/navigation"; // Assuming you're using Next.js's router
+import {parseISO} from 'date-fns';
 
 type Stay = {
     id: number;

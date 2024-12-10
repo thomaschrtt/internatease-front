@@ -1,14 +1,7 @@
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {Button} from "@/components/ui/button"
 import {format, parseISO} from 'date-fns'
-import {DoorOpen, FileSliders, Move, Pen, Trash2} from "lucide-react";
+import {FileSliders, Pen, Trash2} from "lucide-react";
 import {useState} from "react";
 import {MoveStudentForm} from "@/components/stays/move_student_form";
 import {EditDepartureDateForm} from "@/components/stays/editdepartureform";

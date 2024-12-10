@@ -1,4 +1,4 @@
-import { UseMutationOptions, UseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions} from '@tanstack/react-query';
 
 const useCustomQuery = <T>(
     queryKeys: Array<string|object>,

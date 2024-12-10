@@ -1,11 +1,11 @@
-import { Calendar as CalendarIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
-import { format } from 'date-fns'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {Calendar as CalendarIcon} from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
+import {Calendar} from "@/components/ui/calendar"
+import {Label} from "@/components/ui/label"
+import {cn} from "@/lib/utils"
+import {format} from 'date-fns'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined

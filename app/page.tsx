@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bed, Users, Calendar} from 'lucide-react'
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Bed, Calendar, Users} from 'lucide-react'
 
 
 export default function Home() {

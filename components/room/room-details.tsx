@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { format, parseISO, differenceInDays } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {ChartConfig, ChartContainer} from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import {Monitor} from "lucide-react";
+import {useEffect, useState} from 'react'
+import {useRouter} from 'next/navigation'
+import {differenceInDays, format, parseISO} from 'date-fns'
+import {fr} from 'date-fns/locale'
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {ChartConfig} from "@/components/ui/chart"
 import {RoomGanttChart} from "@/components/room/gant-chart";
 
 type Stay = {

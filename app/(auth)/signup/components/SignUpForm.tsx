@@ -1,5 +1,4 @@
 "use client";
-import {useState} from "react";
 import Link from "next/link";
 
 import {Button} from "@/components/ui/button";
@@ -10,17 +9,14 @@ import {signup} from "@/components/login/actions";
 import {toast} from "@/hooks/use-toast";
 
 export function SignUpForm() {
-    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Empêche le rechargement de la page
-        setLoading(true);
 
         const formData = new FormData(event.currentTarget);
 
         const result = await signup(formData);
 
-        setLoading(false);
 
         if (result?.error) {
             toast({
