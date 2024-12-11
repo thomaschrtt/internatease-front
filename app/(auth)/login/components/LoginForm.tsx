@@ -42,7 +42,7 @@ export function LoginForm() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} method={"post"}>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
