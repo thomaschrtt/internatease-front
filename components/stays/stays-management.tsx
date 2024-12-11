@@ -10,7 +10,6 @@ import {
     addStay,
     deleteStay,
     editStay,
-    fetchRooms,
     fetchStays, moveStudent,
     searchAvailableRoom,
     searchAvailableStudents
@@ -18,6 +17,7 @@ import {
 import {toast} from "@/hooks/use-toast";
 import {formatDate} from "@/lib/utils";
 import {fetchStudents} from "@/api/studentAPI";
+import {fetchRooms} from "@/api/chambreAPI";
 
 
 export function StaysManagement() {

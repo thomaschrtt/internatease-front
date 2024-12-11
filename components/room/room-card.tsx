@@ -58,17 +58,6 @@ export const RoomCard = ({
                 <TooltipContent>
                     <div className="p-2">
                         <h3 className="font-bold mb-2">Chambre {room.numero_chambre}</h3>
-                        {/*{hoveredRoomStudents.length > 0 ? (*/}
-                        {/*    <ul>*/}
-                        {/*        {hoveredRoomStudents.map((student) => (*/}
-                        {/*            <li key={student.id}>*/}
-                        {/*                {student.nom} {student.prenom} - {student.classe.nomClasse}*/}
-                        {/*            </li>*/}
-                        {/*        ))}*/}
-                        {/*    </ul>*/}
-                        {/*) : (*/}
-                        {/*    <p>Pas d&#39;étudiants ici</p>*/}
-                        {/*)}*/}
                     </div>
                 </TooltipContent>
             </Tooltip>

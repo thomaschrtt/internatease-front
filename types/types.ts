@@ -13,7 +13,7 @@ type Chambre = {
     capacite: number;
     type_special: string | null;
     bloc: Bloc;
-    id_block: number;
+    bloc_id: number;
     etudiants: Etudiant[]; // Liste d'étudiants
     occupations: Occupation[]; // Liste d'occupations
 };
@@ -88,6 +88,8 @@ type Occupation = {
 };
 
 type OccupationInsert = Omit<Occupation, 'id' | 'chambre' | 'etudiant'>
+
+type ChambreInsert = Omit<Chambre, 'id' | 'bloc' | 'etudiants' | 'occupations'>
 
 // Type pour l'entité Stage
 type Stage = {

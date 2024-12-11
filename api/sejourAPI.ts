@@ -91,23 +91,6 @@ export const searchAvailableStudents = async (searchStartDate: string, searchEnd
 }
 
 
-export const fetchRooms: () => Promise<Chambre[]> = async () => {
-    const supabase = await createClient();
-    try {
-        const {data: chambre, error} = await supabase
-            .from('chambre')
-            .select('*')
-        if (error) {
-            console.error('Error fetching rooms:', error)
-            return []
-        }
-        return chambre as Chambre[]
-    } catch (error) {
-        console.error('Error fetching rooms:', error)
-        return []
-    }
-}
-
 export const moveStudent: (data: MoveStudentData) => Promise<void> = async (data: MoveStudentData) => {
     const supabase = await createClient();
     await supabase.rpc('move_student', data)

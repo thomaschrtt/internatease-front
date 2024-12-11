@@ -3,49 +3,29 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {toast} from "@/hooks/use-toast"
-import axios from "@/api/Axios";
 
 type CreateRoomFormProps = {
     blocks: Bloc[]
-    onRoomCreated: () => void
+    addRoomMutation: (roomData: ChambreInsert) => void
 }
 
-export function CreateRoomForm({blocks, onRoomCreated}: CreateRoomFormProps) {
+export function CreateRoomForm({blocks, addRoomMutation}: CreateRoomFormProps) {
     const [roomNumber, setRoomNumber] = useState('')
     const [capacity, setCapacity] = useState('')
     const [blockId, setBlockId] = useState('')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        try {
-            await axios.post('/api/chambres', {
-                numero_chambre: parseInt(roomNumber),
-                capacite: parseInt(capacity),
-                id_block: parseInt(blockId),
-            }, {
-                headers: {
-                    'Content-Type': 'application/ld+json',
-                }
-            })
-            toast({
-                title: "Chambre créée",
-                description: "La nouvelle chambre a été ajoutée avec succès.",
-            })
-            onRoomCreated()
-            // Reset form
-            setRoomNumber('')
-            setCapacity('')
-            setBlockId('')
+        addRoomMutation({
+            numero_chambre: parseInt(roomNumber),
+            capacite: parseInt(capacity),
+            bloc_id: parseInt(blockId),
+            type_special: null
+        })
+        setRoomNumber('')
+        setCapacity('')
+        setBlockId('')
 
-        } catch (error) {
-            console.error('Error creating room:', error)
-            toast({
-                title: "Erreur",
-                description: "Une erreur est survenue lors de la création de la chambre.",
-                variant: "destructive",
-            })
-        }
     }
 
     return (

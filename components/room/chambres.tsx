@@ -7,46 +7,32 @@ import {PlusCircle} from 'lucide-react'
 import {RoomCard} from "@/components/room/room-card";
 import {RoomFilter} from "@/components/room/room-filter";
 import {CreateRoomForm} from "@/components/room/create-room-form";
-import axios from "@/api/Axios";
+import {addRoom, fetchBlocs, fetchEtages, fetchRooms} from "@/api/chambreAPI";
+import {useCustomMutation, useCustomQuery} from "@/tanstackQuery/queryGenerator";
+import {toast} from "@/hooks/use-toast";
 
 export function Chambres() {
-    const [rooms, setRooms] = useState<Chambre[]>([])
+    const [searchTerm, setSearchTerm] = useState('')
+    const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false)
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null)
     const [hoveredRoomStudents, setHoveredRoomStudents] = useState<Etudiant[]>([])
     const [filter, setFilter] = useState({ floor: 'all', block: 'all', status: 'all', gender: 'all' });
-    const [floors, setFloors] = useState<Etage[]>([]) // Dynamically fetched floors
-    const [blocks, setBlocks] = useState<Bloc[]>([]) // Dynamically fetched blocks
-    const [searchTerm, setSearchTerm] = useState('')
-    const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false)
-
-    useEffect(() => {
-        fetchRooms()
-        fetchFloorsAndBlocks() // Fetch floors and blocks on component mount
-    }, [])
-
-    const fetchRooms = async () => {
-        try {
-            const response = await axios.get('/api/chambres');
-            setRooms(response.data.member); // Set the rooms state with the transformed data
-        } catch (error) {
-            console.error('Error fetching rooms:', error);
+    const {data: rooms} = useCustomQuery(['rooms'], fetchRooms, {initialData: []})
+    const {data: floors} = useCustomQuery(['floors'], fetchEtages, {initialData: []})
+    const {data: blocks} = useCustomQuery(['blocks'], fetchBlocs, {initialData: []})
+    const {mutate: addRoomMutation} = useCustomMutation(
+        (roomData: ChambreInsert) => addRoom(roomData),
+        [['rooms']],
+        {
+            onSuccess: () => {
+                toast({title: 'Chambre ajoutée', description: 'La chambre a été ajoutée avec succès'})
+                setIsCreateRoomModalOpen(false)
+            },
+            onError: () => {
+                toast({title: 'Erreur', description: 'Une erreur s\'est produite lors de l\'ajout de la chambre'})
+            }
         }
-    };
-
-
-    const fetchFloorsAndBlocks = async () => {
-        try {
-            // Fetch floors
-            const floorsResponse = await axios.get('/api/etages')
-            setFloors(floorsResponse.data.member)
-
-            // Fetch blocks
-            const blocksResponse = await axios.get('/api/blocs')
-            setBlocks(blocksResponse.data.member)
-        } catch (error) {
-            console.error('Error fetching floors and blocks:', error)
-        }
-    }
+    )
 
 
     const handleRoomHover = (roomId: string) => {
@@ -71,9 +57,8 @@ export function Chambres() {
         return blockMatch && genderMatch && searchMatch && floorMatch;
     });
 
-    const handleRoomCreated = () => {
-        fetchRooms()
-        setIsCreateRoomModalOpen(false)
+    if (!rooms || !floors || !blocks) {
+        return <div>Loading...</div>
     }
 
     return (
@@ -91,7 +76,7 @@ export function Chambres() {
                         <DialogHeader>
                             <DialogTitle>Ajouter une nouvelle chambre</DialogTitle>
                         </DialogHeader>
-                        <CreateRoomForm blocks={blocks} onRoomCreated={handleRoomCreated} />
+                        <CreateRoomForm blocks={blocks} addRoomMutation={addRoomMutation} />
                     </DialogContent>
                 </Dialog>
             </div>
