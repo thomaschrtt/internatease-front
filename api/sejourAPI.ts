@@ -1,4 +1,3 @@
-import axios from "@/api/Axios";
 import {createClient} from "@/utils/supabase/client";
 
 export const fetchStays: () => Promise<Occupation[]> = async () => {
@@ -6,7 +5,8 @@ export const fetchStays: () => Promise<Occupation[]> = async () => {
     try {
         const {data: sejour, error} = await supabase
             .from('occupation')
-            .select('*')
+            .select('*, chambre:chambre(*), etudiant:etudiant(*)')
+            .order('date_debut', {ascending: false})
         if (error) {
             console.error('Error fetching stays:', error)
             return []
@@ -17,6 +17,79 @@ export const fetchStays: () => Promise<Occupation[]> = async () => {
         return []
     }
 }
+
+export const deleteStay: (stayId: number) => Promise<void> = async (stayId: number) => {
+    const supabase = await createClient();
+    await supabase
+        .from('occupation')
+        .delete()
+        .eq('id', stayId)
+        .throwOnError()
+}
+export const editStay = async (stayId: number, dateFin: string) => {
+    const supabase = await createClient();
+    await supabase
+        .from('occupation')
+        .update({date_fin: dateFin})
+        .eq('id', stayId)
+        .throwOnError()
+}
+
+export const normalizeDateToLocalMidnight = (date: Date): Date => {
+    const offset = date.getTimezoneOffset(); // Décalage en minutes
+    const normalizedDate = new Date(date.getTime() - offset * 60 * 1000);
+    return new Date(normalizedDate.toISOString().split('T')[0]); // Fixe l'heure à 00:00:00
+};
+
+
+export const addStay = async (stay: OccupationInsert) => {
+    const supabase = await createClient();
+    stay.date_debut = normalizeDateToLocalMidnight(stay.date_debut);
+    stay.date_fin = normalizeDateToLocalMidnight(stay.date_fin);
+    await supabase
+        .from('occupation')
+        .insert([stay])
+        .throwOnError()
+}
+
+export const searchAvailableRoom =
+    async (
+        searchStartDate: string,
+        searchEndDate: string,
+        excludedStudentIds: number[] = [],
+        excludedChambreIds: number[] = []
+    ) => {
+        const supabase = await createClient();
+        const {data: availableRooms, error} = await supabase
+            .rpc('get_available_rooms', {
+                p_date_debut: searchStartDate,
+                p_date_fin: searchEndDate,
+                p_excluded_student_ids: excludedStudentIds,
+                p_excluded_chambre_ids: excludedChambreIds
+            });
+        if (error) {
+            console.error('Error fetching available rooms:', error)
+            return []
+        }
+
+        return availableRooms as AvailableChambre[]
+    }
+
+export const searchAvailableStudents = async (searchStartDate: string, searchEndDate: string) => {
+    const supabase = await createClient();
+    const {data: availableStudents, error} = await supabase
+        .rpc('get_unassigned_students', {
+            p_date_debut: searchStartDate,
+            p_date_fin: searchEndDate
+        });
+    if (error) {
+        console.error('Error fetching available students:', error)
+        return []
+    }
+
+    return availableStudents as AvailableEtudiant[]
+}
+
 
 export const fetchRooms: () => Promise<Chambre[]> = async () => {
     const supabase = await createClient();
@@ -35,35 +108,8 @@ export const fetchRooms: () => Promise<Chambre[]> = async () => {
     }
 }
 
-export const editStay = async (stayId: number, dateFin: string) => {
-    try {
-        await axios.patch(`/api/occupations/${stayId}`, {date_fin: dateFin}, {
-            headers: {
-                'Content-Type': 'application/merge-patch+json',
-            },
-        });
-    } catch (error) {
-        console.error('Error editing stay:', error);
-    }
+export const moveStudent: (data: MoveStudentData) => Promise<void> = async (data: MoveStudentData) => {
+    const supabase = await createClient();
+    await supabase.rpc('move_student', data)
 }
 
-export const addStay = async (date_debut: Date, date_fin: Date, chambre_id: number, etudiant_id: number) => {
-    try {
-        await axios.post('/api/occupations', {date_debut, date_fin, chambre_id, etudiant_id}, {
-            headers: {
-                'Content-Type': 'application/ld+json',
-            },
-        });
-    } catch (error) {
-        console.error('Error adding stay:', error);
-    }
-}
-
-export const searchAvailableStudents = async (searchStartDate: string, searchEndDate: string) => {
-    try {
-        const response = await axios.get(`/api/available-students?date_debut=${searchStartDate}&date_fin=${searchEndDate}`);
-        return response.data
-    } catch (error) {
-        console.error('Error fetching available students:', error);
-    }
-}

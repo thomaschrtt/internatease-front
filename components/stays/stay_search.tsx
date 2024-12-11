@@ -12,8 +12,7 @@ type RoomSearchProps = {
     searchEndDate: Date | undefined
     setSearchStartDate: (date: Date | undefined) => void
     setSearchEndDate: (date: Date | undefined) => void
-    availableRooms: Chambre[]
-    searchAvailableRooms: () => void
+    availableRooms: AvailableChambre[]
     handleRoomClick: (roomId: number, roomNumber: string) => void // New function to handle room click
 }
 
@@ -23,7 +22,6 @@ export function RoomSearch({
                                setSearchStartDate,
                                setSearchEndDate,
                                availableRooms,
-                               searchAvailableRooms,
                                handleRoomClick // Added handler for room click
                            }: RoomSearchProps) {
     return (
@@ -82,7 +80,6 @@ export function RoomSearch({
                     </Popover>
                 </div>
 
-                <Button onClick={searchAvailableRooms}>Rechercher</Button>
             </div>
 
             {availableRooms.length > 0 && (
@@ -93,12 +90,12 @@ export function RoomSearch({
                             const remainingPlaces = room.capacite;
                             return (
                                 <Card
-                                    key={room.id}
+                                    key={room.chambre_id}
                                     className="shadow-lg transition transform hover:scale-105 hover:shadow-xl hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => handleRoomClick(room.id, room.numero_chambre.toString())}
+                                    onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
                                 >
                                     <CardHeader>
-                                        <CardTitle>Chambre {room.numero_chambre} - Etage {room.bloc.etage.genre} </CardTitle>
+                                        <CardTitle>Chambre {room.numero_chambre} </CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-gray-700">

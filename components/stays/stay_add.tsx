@@ -7,7 +7,7 @@ import {formatDate} from "@/lib/utils";
 type AddStayFormProps = {
     isAddStayModalOpen: boolean
     setIsAddStayModalOpen: (open: boolean) => void
-    students: Etudiant[]
+    students: AvailableEtudiant[]
     newStay: Partial<Occupation>
     setNewStay: (stay: Occupation) => void
     handleAddStay: (e: React.FormEvent) => void
@@ -38,8 +38,8 @@ export function AddStayForm({
                             </SelectTrigger>
                             <SelectContent>
                                 {students.map(student => (
-                                    <SelectItem key={student.id}
-                                                value={student.id.toString()}>{student.nom} {student.prenom}</SelectItem>
+                                    <SelectItem key={student.etudiant_id}
+                                                value={student.etudiant_id.toString()}>{student.nom} {student.prenom}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

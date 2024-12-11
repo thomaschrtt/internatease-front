@@ -18,6 +18,37 @@ type Chambre = {
     occupations: Occupation[]; // Liste d'occupations
 };
 
+type AvailableChambre = {
+    chambre_id: number;
+    numero_chambre: number;
+    etage_id: number;
+    genre: null;
+    nom_bloc: string;
+    numero_etage: number;
+    capacite: number;
+    type_special: string | null;
+    bloc_id: number;
+}
+
+type AvailableEtudiant = {
+    etudiant_id: number,
+    nom: string,
+    prenom: string,
+    genre: string,
+    num_etu: number,
+    classe_id: number,
+    internat_weekend: boolean
+}
+
+type MoveStudentData = {
+    p_etudiant_id: number,
+    p_new_chambre_id: number,
+    p_date_debut: string,
+    p_is_definitive: boolean,
+    p_stay_id: number
+}
+
+
 // Type pour l'entité Classe
 type Classe = {
     id: number;
@@ -55,6 +86,8 @@ type Occupation = {
     chambre: Chambre;
     chambre_id: number;
 };
+
+type OccupationInsert = Omit<Occupation, 'id' | 'chambre' | 'etudiant'>
 
 // Type pour l'entité Stage
 type Stage = {

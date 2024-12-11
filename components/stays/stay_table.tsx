@@ -10,11 +10,10 @@ type StaysTableProps = {
     stays: Occupation[];
     onDelete: (stayId: number) => void; // Function to handle delete
     onEdit: (stayId: number, newDateFin: string) => void; // Function to handle edit
-    allRooms: Chambre[];
-    handleMovedStudent: () => void;
+    onMove: (data: MoveStudentData) => void;
 }
 
-export function StaysTable({stays, onDelete, onEdit, allRooms, handleMovedStudent}: StaysTableProps) {
+export function StaysTable({stays, onDelete, onEdit, onMove}: StaysTableProps) {
     const [selectedStay, setSelectedStay] = useState<Occupation | null>(null); // State to store the stay for the move
     const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -81,11 +80,10 @@ export function StaysTable({stays, onDelete, onEdit, allRooms, handleMovedStuden
             </Table>
             {selectedStay && (
                 <MoveStudentForm
-                    allRooms={allRooms}
                     stay={selectedStay}
                     isOpen={isMoveModalOpen}
                     setIsOpen={setIsMoveModalOpen}
-                    handleMovedStudent={handleMovedStudent}
+                    onMove={onMove}
                 />
             )}
             {/* Use the new EditDepartureDateForm */}

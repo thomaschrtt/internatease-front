@@ -5,42 +5,46 @@ import {RoomSearch} from "@/components/stays/stay_search";
 import {StaysTable} from "@/components/stays/stay_table";
 import {AddStayForm} from "@/components/stays/stay_add";
 import {Separator} from "@/components/ui/separator"
-import axios from "@/api/Axios";
 import {useCustomMutation, useCustomQuery} from "@/tanstackQuery/queryGenerator";
-import {addStay, editStay, fetchRooms, fetchStays, searchAvailableStudents} from "@/api/sejourAPI";
+import {
+    addStay,
+    deleteStay,
+    editStay,
+    fetchRooms,
+    fetchStays, moveStudent,
+    searchAvailableRoom,
+    searchAvailableStudents
+} from "@/api/sejourAPI";
 import {toast} from "@/hooks/use-toast";
 import {formatDate} from "@/lib/utils";
 import {fetchStudents} from "@/api/studentAPI";
 
 
 export function StaysManagement() {
-    const {data: stays, isLoading: staysLoading} = useCustomQuery<Occupation[]>(
-        ['occupations'],
-        () => fetchStays()
-    )
-
-    const {data: rooms, isLoading: roomsLoading} = useCustomQuery<Chambre[]>(
-        ['chambres'],
-        () => fetchRooms()
-    )
-    const {data: students, isLoading: studentsLoading} = useCustomQuery<Etudiant[]>(
-        ['etudiants'],
-        () => fetchStudents()
-    )
 
     const [searchStartDate, setSearchStartDate] = useState<Date>()
     const [searchEndDate, setSearchEndDate] = useState<Date>()
-    const [availableRooms, setAvailableRooms] = useState<Chambre[]>([])
-    const [availableStudents, setAvailableStudents] = useState<Etudiant[]>([])
-    const [searchTerm, setSearchTerm] = useState<string>('') // Add a search term state
+    const [searchTerm] = useState<string>('') // Add a search term state
     const [isAddStayModalOpen, setIsAddStayModalOpen] = useState(false)
     const [newStay, setNewStay] = useState<Partial<Occupation>>({})
 
+    const {data: stays, isLoading: staysLoading} = useCustomQuery(['stays'], fetchStays)
+    const {data: rooms, isLoading: roomsLoading} = useCustomQuery(['rooms'], fetchRooms)
+    const {data: students, isLoading: studentsLoading} = useCustomQuery(['students'], fetchStudents)
+    const {data: availableRooms} = useCustomQuery<AvailableChambre[]>(
+        ['availableRooms', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
+        () => searchAvailableRoom(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
+    )
+    const {data: availableStudents} = useCustomQuery<AvailableEtudiant[]>(
+        ['availableStudents', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
+        () => searchAvailableStudents(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
+    )
 
-
-    const {mutate: deleteStay} = useCustomMutation(
-        ({stayId}) => axios.delete(`/api/occupations/${stayId}`),
-        [['occupations']],
+    const {mutate: deleteStayMutation} = useCustomMutation(
+        ({stayId}) => deleteStay(stayId),
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
         {
             onSuccess: () => toast({
                 title: "Séjour supprimé",
@@ -56,8 +60,8 @@ export function StaysManagement() {
     )
 
     const {mutate: addingStay} = useCustomMutation(
-        ({date_debut, date_fin, chambre_id, etudiant_id}) => addStay(date_debut, date_fin, chambre_id, etudiant_id),
-        [['occupations']],
+        (stay: OccupationInsert) => addStay(stay),
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
         {
             onSuccess: () => toast({
                 title: "Séjour ajouté",
@@ -74,7 +78,7 @@ export function StaysManagement() {
 
     const {mutate: onEdit} = useCustomMutation(
         ({stayId, newDateFin}) => editStay(stayId, newDateFin),
-        [['occupations', 'chambres']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
         {
             onSuccess: () => toast({
                 title: "Séjour modifié",
@@ -89,59 +93,22 @@ export function StaysManagement() {
         }
     )
 
-    const {data: availableStudentsData, isLoading: availableStudentsLoading} = useCustomQuery<any[]>(
-        ['availableStudents'],
-        () => searchAvailableStudents(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null))
+    const {mutate: moveStudentMutation} = useCustomMutation(
+        (data: MoveStudentData) => moveStudent(data),
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        {
+            onSuccess: () => toast({
+                title: "Étudiant déplacé",
+                description: "L'étudiant a été déplacé avec succès",
+                variant: "default"
+            }),
+            onError: () => toast({
+                title: "Erreur",
+                description: "Une erreur s'est produite lors du déplacement de l'étudiant",
+                variant: "destructive"
+            })
+        }
     )
-
-    const onSearchAvailableStudents = async () => {
-        if (!searchStartDate || !searchEndDate) return;
-
-        try {
-            const response = await axios.get(`/api/available-students?date_debut=${formatDate(searchStartDate)}&date_fin=${formatDate(searchEndDate)}`);
-            if (response.status !== 200) {
-                console.error('Failed to fetch available rooms');
-                return;
-            }
-            await fetchStudents();
-            const availableStudentsIds = await response.data;
-            if (!students) {
-                return;
-            }
-            const availableStudents = students.filter(student => Object.keys(availableStudentsIds).includes(student.id.toString()));
-            setAvailableStudents(availableStudents);
-
-        } catch (error) {
-            console.error('Error fetching available students:', error);
-        }
-    };
-
-    const searchAvailableRooms = async () => {
-        if (!searchStartDate || !searchEndDate) return;
-
-        try {
-            const response = await axios.get(`/api/available-rooms?date_debut=${formatDate(searchStartDate)}&date_fin=${formatDate(searchEndDate)}`);
-
-            if (response.status !== 200) {
-                console.error('Failed to fetch available rooms');
-                return;
-            }
-
-            const availableRoomIds = await response.data;
-            if (!rooms) {
-                return;
-            }
-            const availableRooms = rooms.filter(room => Object.keys(availableRoomIds).includes(room.id.toString()));
-            availableRooms.map(room => {
-                    return room;
-                }
-            )
-            setAvailableRooms(availableRooms);
-
-        } catch (error) {
-            console.error('Error fetching available rooms:', error);
-        }
-    };
 
 
     const handleAddStay = async (e: React.FormEvent) => {
@@ -186,7 +153,7 @@ export function StaysManagement() {
             return; // Si l'utilisateur annule, on arrête la fonction ici
         }
 
-        deleteStay({stayId})
+        deleteStayMutation({stayId})
 
     };
     // Filter stays based on the search term (student's name)
@@ -196,11 +163,7 @@ export function StaysManagement() {
         )
         : [];
 
-    const handleMovedStudent = () => {
-        fetchStays()
-    }
-
-    if (staysLoading || roomsLoading || studentsLoading || availableStudentsLoading || !stays || !rooms || !students) {
+    if (staysLoading || roomsLoading || studentsLoading || !stays || !rooms || !students || !availableRooms || !availableStudents) {
         return <div>Loading...</div>
     }
 
@@ -214,7 +177,6 @@ export function StaysManagement() {
                 setSearchStartDate={setSearchStartDate}
                 setSearchEndDate={setSearchEndDate}
                 availableRooms={availableRooms}
-                searchAvailableRooms={searchAvailableRooms}
                 handleRoomClick={handleRoomClick}
             />
 
@@ -233,9 +195,10 @@ export function StaysManagement() {
                     />
                 </div>
 
-                <StaysTable stays={filteredStays} onDelete={handleDeleteStay}
+                <StaysTable stays={filteredStays}
+                            onDelete={handleDeleteStay}
                             onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}
-                            allRooms={rooms} handleMovedStudent={handleMovedStudent}/> {/* Pass the delete handler */}
+                            onMove={moveStudentMutation}/> {/* Pass the delete handler */}
             </div>
         </div>
     )
