@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InternatEase
 
-## Getting Started
+## À propos
 
-First, run the development server:
+InternatEase est une application web conçue pour faciliter la gestion des internats, en offrant des fonctionnalités de gestion des étudiants, des chambres et des réservations. Développée avec Next.js pour le front-end et Supabase pour le back-end, elle vise à simplifier les opérations quotidiennes des établissements d'enseignement.
+
+## Table des matières
+
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Utilisation](#utilisation)
+- [Fonctionnalités](#fonctionnalités)
+- [Auteurs](#auteurs)
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur votre machine :
+
+- [Node.js](https://nodejs.org/) 
+- [npm](https://www.npmjs.com/) ou [Yarn](https://yarnpkg.com/)
+- [Supabase](https://supabase.io/) : Créez un compte et un projet pour obtenir les informations de connexion nécessaires.
+
+## Installation
+
+1. **Cloner le dépôt :**
+
+   ```bash
+   git clone https://github.com/thomaschrtt/internatease-front.git
+   cd internatease-front
+   ```
+2. **Installer les dépendances :**
+
+   Avec npm :
+
+   ```bash
+   npm install
+   ```
+
+   Ou avec Yarn :
+
+   ```bash
+   yarn install
+    ```
+
+3. Configurer les variables d'environnement :
+
+Renommez le fichier `.env.example` en `.env.local` et remplissez les variables suivantes avec vos informations **Supabase** :
+
+````dotenv
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+````
+## Utilisation
+Pour démarrer l'application en mode développement :
+
+Avec npm :
 
 ```bash
 npm run dev
-# or
+```
+Ou avec Yarn :
+
+```bash
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ensuite, ouvrez http://localhost:3000 dans votre navigateur pour voir l'application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fonctionnalités
+- **Gestion des étudiants** : Ajout, modification et suppression des informations des étudiants.
+- **Gestion des chambres** : Suivi de l'occupation des chambres et gestion des disponibilités.
+- **Réservations** : Planification des séjours des étudiants avec gestion des dates d'arrivée et de départ.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Auteurs
+**Charotte** - _Développeur principal_ - [charotte](https://github.com/thomaschrtt)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ 
