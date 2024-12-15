@@ -1,22 +1,33 @@
 "use client";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
-import {User, UserMetadata} from "@supabase/auth-js";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {LogIn, LogOut} from "lucide-react";
 import {signout} from "@/components/login/actions";
+import {createClient} from "@/utils/supabase/client";
+import {UserMetadata} from "@supabase/auth-js";
 
 
-type AuthButtonProps = {
-    user: UserMetadata | null
-    setUser: (user: User | null) => void
-}
-
-const AuthButton = ({ user, setUser }: AuthButtonProps) => {
+const AuthButton = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false)
+
+    const [user, setUser] = useState<UserMetadata | null>(null)
+
+    const fetchUser = async () => {
+        const supabase = await createClient()
+        const userdata = (await supabase.auth.getSession())?.data.session?.user?.user_metadata
+        if (userdata) {
+            setUser(userdata)
+        }
+    }
+
+    useEffect(() => {
+        fetchUser()
+    }, [])
+
 
     const handleSignOut = async () => {
         setIsLoading(true)
