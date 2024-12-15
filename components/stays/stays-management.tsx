@@ -18,6 +18,7 @@ import {toast} from "@/hooks/use-toast";
 import {formatDate} from "@/lib/utils";
 import {fetchStudents} from "@/api/studentAPI";
 import {fetchRooms} from "@/api/chambreAPI";
+import RoomManagementInterface from "@/components/room/room-management";
 
 
 export function StaysManagement() {
@@ -44,7 +45,7 @@ export function StaysManagement() {
 
     const {mutate: deleteStayMutation} = useCustomMutation(
         ({stayId}) => deleteStay(stayId),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour supprimé",
@@ -61,7 +62,7 @@ export function StaysManagement() {
 
     const {mutate: addingStay} = useCustomMutation(
         (stay: OccupationInsert) => addStay(stay),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour ajouté",
@@ -78,7 +79,7 @@ export function StaysManagement() {
 
     const {mutate: onEdit} = useCustomMutation(
         ({stayId, newDateFin}) => editStay(stayId, newDateFin),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour modifié",
@@ -95,7 +96,7 @@ export function StaysManagement() {
 
     const {mutate: moveStudentMutation} = useCustomMutation(
         (data: MoveStudentData) => moveStudent(data),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Étudiant déplacé",
@@ -184,7 +185,6 @@ export function StaysManagement() {
 
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Séjours actuels</h2>
                     <AddStayForm
                         isAddStayModalOpen={isAddStayModalOpen}
                         setIsAddStayModalOpen={setIsAddStayModalOpen}
@@ -195,10 +195,11 @@ export function StaysManagement() {
                     />
                 </div>
 
-                <StaysTable stays={filteredStays}
-                            onDelete={handleDeleteStay}
-                            onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}
-                            onMove={moveStudentMutation}/> {/* Pass the delete handler */}
+                {/*<StaysTable stays={filteredStays}*/}
+                {/*            onDelete={handleDeleteStay}*/}
+                {/*            onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}*/}
+                {/*            onMove={moveStudentMutation}/> /!* Pass the delete handler *!/*/}
+                <RoomManagementInterface/>
             </div>
         </div>
     )

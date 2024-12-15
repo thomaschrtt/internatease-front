@@ -61,6 +61,7 @@ type Etage = {
     id: number;
     numero_etage: number;
     genre: string | null; // Enum Genre en tant que string
+    blocs: Bloc[]; // Liste de blocs
 };
 
 // Type pour l'entité Etudiant
