@@ -7,6 +7,7 @@ import {cn} from "@/lib/utils"
 import {format} from 'date-fns'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {useEffect, useState} from "react";
+import {toast} from "@/hooks/use-toast";
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined
@@ -68,7 +69,17 @@ export function RoomSearch({
                             <Calendar
                                 mode="single"
                                 selected={searchStartDate}
-                                onSelect={setSearchStartDate}
+                                onSelect={(date) => {
+                                    if (date && searchEndDate && date >= searchEndDate) {
+                                        toast({
+                                            title: 'Erreur',
+                                            description: 'La date de début ne peut pas être postérieure / égale à la date de fin',
+                                            variant: 'destructive'
+                                        });
+                                        return;
+                                    }
+                                    setSearchStartDate(date);
+                                }}
                                 initialFocus
                             />
                         </PopoverContent>
@@ -94,7 +105,17 @@ export function RoomSearch({
                             <Calendar
                                 mode="single"
                                 selected={searchEndDate}
-                                onSelect={setSearchEndDate}
+                                onSelect={(date) => {
+                                    if (date && searchStartDate && date <= searchStartDate) {
+                                        toast({
+                                            title: 'Erreur',
+                                            description: 'La date de fin ne peut pas être antérieure / égale à la date de début',
+                                            variant: 'destructive'
+                                        });
+                                        return;
+                                    }
+                                    setSearchEndDate(date);
+                                }}
                                 initialFocus
                             />
                         </PopoverContent>
@@ -114,7 +135,7 @@ export function RoomSearch({
                     <div className="mb-4">
                         <input
                             type="text"
-                            placeholder="Rechercher par numéro ou capacité..."
+                            placeholder="Rechercher par numéro..."
                             className="border border-gray-300 rounded-md p-2 w-full"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
@@ -123,7 +144,7 @@ export function RoomSearch({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {roomsToDisplay.map(room => {
-                            const remainingPlaces = room.capacite;
+                            const remainingPlaces = room.capacite - room.occ_count;
                             return (
                                 <Card
                                     key={room.chambre_id}

@@ -28,6 +28,7 @@ type AvailableChambre = {
     capacite: number;
     type_special: string | null;
     bloc_id: number;
+    occ_count: number;
 }
 
 type AvailableEtudiant = {
