@@ -44,7 +44,6 @@ export const fetchEtages: () => Promise<Etage[]> = async () => {
             .lte('blocs.chambres.occupations.date_debut', today)
             .gt('blocs.chambres.occupations.date_fin', today)
 
-        console.log(etage)
         if (error) {
             console.error('Error fetching floors:', error)
             return []
@@ -65,7 +64,6 @@ export async function  fetchEtageForSpecificDate (date: string): Promise<Etage[]
             .lte('blocs.chambres.occupations.date_debut', date)
             .gt('blocs.chambres.occupations.date_fin', date)
 
-        console.log(etage)
         if (error) {
             console.error('Error fetching floors:', error)
             return []
