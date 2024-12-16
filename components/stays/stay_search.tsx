@@ -24,10 +24,11 @@ export function RoomSearch({
                                setSearchStartDate,
                                setSearchEndDate,
                                availableRooms,
-                               handleRoomClick, // Added handler for room click
+                               handleRoomClick,
                                resetSearch
                            }: RoomSearchProps) {
     const [visibleCount, setVisibleCount] = useState(6);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 6);
@@ -35,9 +36,14 @@ export function RoomSearch({
 
     useEffect(() => {
         setVisibleCount(6);
-    } , [searchStartDate, searchEndDate]);
+    }, [searchStartDate, searchEndDate]);
 
-    const roomsToDisplay = availableRooms.slice(0, visibleCount);
+    const filteredRooms = availableRooms.filter(room =>
+        room.numero_chambre.toString().includes(searchQuery) ||
+        room.capacite.toString().includes(searchQuery)
+    );
+
+    const roomsToDisplay = filteredRooms.slice(0, visibleCount);
 
     return (
         <div className="mb-8">
@@ -94,6 +100,7 @@ export function RoomSearch({
                         </PopoverContent>
                     </Popover>
                 </div>
+
                 <div>
                     <Button onClick={resetSearch}>Réinitialiser</Button>
                 </div>
@@ -102,6 +109,18 @@ export function RoomSearch({
             {availableRooms.length > 0 && (
                 <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
+
+                    {/* Barre de recherche */}
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Rechercher par numéro ou capacité..."
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {roomsToDisplay.map(room => {
                             const remainingPlaces = room.capacite;
@@ -126,7 +145,7 @@ export function RoomSearch({
                         })}
                     </div>
 
-                    {visibleCount < availableRooms.length && (
+                    {visibleCount < filteredRooms.length && (
                         <div className="mt-4 flex justify-center">
                             <Button onClick={handleLoadMore}>
                                 Charger plus
