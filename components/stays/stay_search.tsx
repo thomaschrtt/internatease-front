@@ -6,6 +6,7 @@ import {Label} from "@/components/ui/label"
 import {cn} from "@/lib/utils"
 import {format} from 'date-fns'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {useEffect, useState} from "react";
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined
@@ -14,6 +15,7 @@ type RoomSearchProps = {
     setSearchEndDate: (date: Date | undefined) => void
     availableRooms: AvailableChambre[]
     handleRoomClick: (roomId: number, roomNumber: string) => void // New function to handle room click
+    resetSearch: () => void
 }
 
 export function RoomSearch({
@@ -22,8 +24,21 @@ export function RoomSearch({
                                setSearchStartDate,
                                setSearchEndDate,
                                availableRooms,
-                               handleRoomClick // Added handler for room click
+                               handleRoomClick, // Added handler for room click
+                               resetSearch
                            }: RoomSearchProps) {
+    const [visibleCount, setVisibleCount] = useState(6);
+
+    const handleLoadMore = () => {
+        setVisibleCount(prev => prev + 6);
+    };
+
+    useEffect(() => {
+        setVisibleCount(6);
+    } , [searchStartDate, searchEndDate]);
+
+    const roomsToDisplay = availableRooms.slice(0, visibleCount);
+
     return (
         <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Rechercher chambres libres</h2>
@@ -39,7 +54,7 @@ export function RoomSearch({
                                     !searchStartDate && "text-muted-foreground"
                                 )}
                             >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-4 w-4"/>
                                 {searchStartDate ? format(searchStartDate, "PPP") : <span>Choisissez une date</span>}
                             </Button>
                         </PopoverTrigger>
@@ -65,7 +80,7 @@ export function RoomSearch({
                                     !searchEndDate && "text-muted-foreground"
                                 )}
                             >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-4 w-4"/>
                                 {searchEndDate ? format(searchEndDate, "PPP") : <span>Choisissez une date</span>}
                             </Button>
                         </PopoverTrigger>
@@ -79,14 +94,16 @@ export function RoomSearch({
                         </PopoverContent>
                     </Popover>
                 </div>
-
+                <div>
+                    <Button onClick={resetSearch}>Réinitialiser</Button>
+                </div>
             </div>
 
             {availableRooms.length > 0 && (
                 <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {availableRooms.map(room => {
+                        {roomsToDisplay.map(room => {
                             const remainingPlaces = room.capacite;
                             return (
                                 <Card
@@ -108,9 +125,16 @@ export function RoomSearch({
                             );
                         })}
                     </div>
+
+                    {visibleCount < availableRooms.length && (
+                        <div className="mt-4 flex justify-center">
+                            <Button onClick={handleLoadMore}>
+                                Charger plus
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
-
         </div>
-    )
+    );
 }

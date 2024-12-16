@@ -164,6 +164,11 @@ export function StaysManagement() {
         )
         : [];
 
+    const resetDateSearch = () => {
+        setSearchStartDate(undefined)
+        setSearchEndDate(undefined)
+    }
+
     if (staysLoading || roomsLoading || studentsLoading || !stays || !rooms || !students || !availableRooms || !availableStudents) {
         return <div>Loading...</div>
     }
@@ -179,6 +184,7 @@ export function StaysManagement() {
                 setSearchEndDate={setSearchEndDate}
                 availableRooms={availableRooms}
                 handleRoomClick={handleRoomClick}
+                resetSearch={resetDateSearch}
             />
 
             <Separator className="my-4"/>
