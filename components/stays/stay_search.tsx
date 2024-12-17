@@ -29,7 +29,10 @@ export function RoomSearch({
                                resetSearch
                            }: RoomSearchProps) {
     const [visibleCount, setVisibleCount] = useState(6);
-    const [searchQuery, setSearchQuery] = useState("");
+
+    // Deux champs de recherche :
+    const [searchRoomNumber, setSearchRoomNumber] = useState("");
+    const [searchPlaces, setSearchPlaces] = useState("");
 
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 6);
@@ -39,10 +42,23 @@ export function RoomSearch({
         setVisibleCount(6);
     }, [searchStartDate, searchEndDate]);
 
-    const filteredRooms = availableRooms.filter(room =>
-        room.numero_chambre.toString().includes(searchQuery) ||
-        room.capacite.toString().includes(searchQuery)
-    );
+    // Calcul du maximum de places restantes parmi les chambres disponibles
+    const maxRemainingPlaces = availableRooms.length > 0
+        ? Math.max(...availableRooms.map(room => room.capacite - room.occ_count))
+        : 0;
+
+    // Filtrage des chambres
+    const filteredRooms = availableRooms.filter(room => {
+        const remainingPlaces = room.capacite - room.occ_count;
+
+        const matchesRoom = searchRoomNumber === ""
+            || room.numero_chambre.toString().includes(searchRoomNumber);
+
+        const matchesPlaces = searchPlaces === ""
+            || (parseInt(searchPlaces, 10) === remainingPlaces);
+
+        return matchesRoom && matchesPlaces;
+    });
 
     const roomsToDisplay = filteredRooms.slice(0, visibleCount);
 
@@ -73,7 +89,7 @@ export function RoomSearch({
                                     if (date && searchEndDate && date >= searchEndDate) {
                                         toast({
                                             title: 'Erreur',
-                                            description: 'La date de début ne peut pas être postérieure / égale à la date de fin',
+                                            description: 'La date de début ne peut pas être postérieure ou égale à la date de fin',
                                             variant: 'destructive'
                                         });
                                         return;
@@ -109,7 +125,7 @@ export function RoomSearch({
                                     if (date && searchStartDate && date <= searchStartDate) {
                                         toast({
                                             title: 'Erreur',
-                                            description: 'La date de fin ne peut pas être antérieure / égale à la date de début',
+                                            description: 'La date de fin ne peut pas être antérieure ou égale à la date de début',
                                             variant: 'destructive'
                                         });
                                         return;
@@ -131,15 +147,38 @@ export function RoomSearch({
                 <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
 
-                    {/* Barre de recherche */}
-                    <div className="mb-4">
-                        <input
-                            type="text"
-                            placeholder="Rechercher par numéro..."
-                            className="border border-gray-300 rounded-md p-2 w-full"
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                        />
+                    {/* Champs de recherche */}
+                    <div className="flex gap-4 mb-4">
+                        <div className="flex-1">
+                            <Label htmlFor="search-room-number">Rechercher par numéro de chambre</Label>
+                            <input
+                                id="search-room-number"
+                                type="text"
+                                placeholder="Ex: 101"
+                                className="border border-gray-300 rounded-md p-2 w-full"
+                                value={searchRoomNumber}
+                                onChange={e => setSearchRoomNumber(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex-1">
+                            <Label htmlFor="search-places">Nombre de places restantes</Label>
+                            {maxRemainingPlaces > 0 ? (
+                                <select
+                                    id="search-places"
+                                    className="border border-gray-300 rounded-md p-2 w-full"
+                                    value={searchPlaces}
+                                    onChange={e => setSearchPlaces(e.target.value)}
+                                >
+                                    <option value="">Toutes</option>
+                                    {Array.from({ length: maxRemainingPlaces }, (_, i) => i + 1).map(val => (
+                                        <option key={val} value={val}>{val}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <p>Aucune place disponible</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -152,7 +191,7 @@ export function RoomSearch({
                                     onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
                                 >
                                     <CardHeader>
-                                        <CardTitle>Chambre {room.numero_chambre} </CardTitle>
+                                        <CardTitle>Chambre {room.numero_chambre}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-gray-700">
