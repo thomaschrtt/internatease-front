@@ -34,12 +34,12 @@ export function StaysManagement() {
     const {data: students, isLoading: studentsLoading} = useCustomQuery(['students'], fetchStudents)
     const {data: availableRooms} = useCustomQuery<AvailableChambre[]>(
         ['availableRooms', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
-        () => searchAvailableRoom(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        () => searchAvailableRoom(searchStartDate?.toISOString().split('T')[0], searchEndDate?.toISOString().split('T')[0]),
         {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
     )
     const {data: availableStudents} = useCustomQuery<AvailableEtudiant[]>(
         ['availableStudents', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
-        () => searchAvailableStudents(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        () => searchAvailableStudents(searchStartDate?.toISOString().split('T')[0], searchEndDate?.toISOString().split('T')[0]),
         {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
     )
 

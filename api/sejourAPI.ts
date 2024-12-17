@@ -54,11 +54,14 @@ export const addStay = async (stay: OccupationInsert) => {
 
 export const searchAvailableRoom =
     async (
-        searchStartDate: string,
-        searchEndDate: string,
+        searchStartDate: string | undefined,
+        searchEndDate: string | undefined,
         excludedStudentIds: number[] = [],
         excludedChambreIds: number[] = []
     ) => {
+        if (!searchStartDate || !searchEndDate) {
+            return []
+        }
         const supabase = await createClient();
         const {data: availableRooms, error} = await supabase
             .rpc('get_available_rooms', {
@@ -67,6 +70,7 @@ export const searchAvailableRoom =
                 p_excluded_student_ids: excludedStudentIds,
                 p_excluded_chambre_ids: excludedChambreIds
             });
+        console.log((availableRooms as AvailableChambre[]).filter(room => room.numero_chambre === 101))
         if (error) {
             console.error('Error fetching available rooms:', error)
             return []
@@ -75,7 +79,10 @@ export const searchAvailableRoom =
         return availableRooms as AvailableChambre[]
     }
 
-export const searchAvailableStudents = async (searchStartDate: string, searchEndDate: string) => {
+export const searchAvailableStudents = async (searchStartDate: string | undefined, searchEndDate: string | undefined) => {
+    if (!searchStartDate || !searchEndDate) {
+        return []
+    }
     const supabase = await createClient();
     const {data: availableStudents, error} = await supabase
         .rpc('get_unassigned_students', {

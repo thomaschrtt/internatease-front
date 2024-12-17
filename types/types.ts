@@ -36,8 +36,9 @@ type AvailableEtudiant = {
     nom: string,
     prenom: string,
     genre: string,
-    num_etu: number,
+    num_etu: string,
     classe_id: number,
+    nom_classe: string,
     internat_weekend: boolean
 }
 
@@ -73,7 +74,7 @@ type Etudiant = {
     internat_weekend: boolean;
     genre: string;
     occupations: Occupation[]; // Liste d'occupations
-    num_etu: number;
+    num_etu: string;
     classe: Classe;
     classe_id: number;
 };
