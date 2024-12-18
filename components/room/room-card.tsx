@@ -3,10 +3,9 @@
 import React from 'react'
 import {Card, CardContent} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
-import {ScrollArea} from "@/components/ui/scroll-area"
-import {Accessibility, CalendarCheck, CalendarX, User} from 'lucide-react'
-import {formatDate} from "date-fns";
+import {Dialog, DialogTrigger,} from "@/components/ui/dialog"
+import {Accessibility} from 'lucide-react'
+import {RoomInfoDialog} from "@/components/room/room-info-dialog";
 
 const RoomCard = ({room}: { room: Chambre }) => {
     const occupancyPercentage = (room.occupations.length / room.capacite) * 100
@@ -37,37 +36,7 @@ const RoomCard = ({room}: { room: Chambre }) => {
                     )}
                 </Card>
             </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Chambre {room.numero_chambre} Détails</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4">
-                    <p>Etage: {room.bloc.etage.numero_etage}</p>
-                    <p>Bloc: {room.bloc.nom_bloc}</p>
-                    <p>Capacité: {room.occupations.length}/{room.capacite}</p>
-                </div>
-                <ScrollArea className="h-[200px] w-full rounded-md border p-4 mt-4">
-                    <h4 className="font-semibold mb-2">Etudiants assignés:</h4>
-                    {room.occupations.length > 0 ? (
-                        room.occupations.map((occupation) => (
-                            <div key={occupation.etudiant_id} className="flex items-center mb-2">
-                                <User className="h-4 w-4 mr-2"/>
-                                <span>{occupation.etudiant.nom} - {occupation.etudiant.classe.nom_classe} </span>
-                                <span className="flex items-center ml-4">
-    <CalendarCheck className="h-4 w-4 mr-1"/>
-                                    {formatDate(occupation.date_debut, "dd/MM/yyyy")}
-  </span>
-                                <span className="flex items-center ml-4">
-    <CalendarX className="h-4 w-4 mr-1"/>
-                                    {formatDate(occupation.date_fin, "dd/MM/yyyy")}
-  </span>
-                            </div>
-                        ))
-                    ) : (
-                        <p>Pas d&#39;étudiant dans cette chambre</p>
-                    )}
-                </ScrollArea>
-            </DialogContent>
+            <RoomInfoDialog room={room}/>
         </Dialog>
     )
 }
