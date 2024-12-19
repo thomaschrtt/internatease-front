@@ -18,6 +18,7 @@ import {toast} from "@/hooks/use-toast";
 import {formatDate} from "@/lib/utils";
 import {fetchStudents} from "@/api/studentAPI";
 import {fetchRooms} from "@/api/chambreAPI";
+import RoomManagementInterface from "@/components/room/room-management";
 
 
 export function StaysManagement() {
@@ -33,18 +34,18 @@ export function StaysManagement() {
     const {data: students, isLoading: studentsLoading} = useCustomQuery(['students'], fetchStudents)
     const {data: availableRooms} = useCustomQuery<AvailableChambre[]>(
         ['availableRooms', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
-        () => searchAvailableRoom(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        () => searchAvailableRoom(searchStartDate?.toISOString().split('T')[0], searchEndDate?.toISOString().split('T')[0]),
         {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
     )
     const {data: availableStudents} = useCustomQuery<AvailableEtudiant[]>(
         ['availableStudents', searchStartDate ? searchStartDate.toString() : '', searchEndDate ? searchEndDate.toString() : ''],
-        () => searchAvailableStudents(formatDate(searchStartDate ? searchStartDate : null), formatDate(searchEndDate ? searchEndDate : null)),
+        () => searchAvailableStudents(searchStartDate?.toISOString().split('T')[0], searchEndDate?.toISOString().split('T')[0]),
         {enabled: !!searchStartDate && !!searchEndDate, initialData: []}
     )
 
     const {mutate: deleteStayMutation} = useCustomMutation(
         ({stayId}) => deleteStay(stayId),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour supprimé",
@@ -61,7 +62,7 @@ export function StaysManagement() {
 
     const {mutate: addingStay} = useCustomMutation(
         (stay: OccupationInsert) => addStay(stay),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour ajouté",
@@ -78,7 +79,7 @@ export function StaysManagement() {
 
     const {mutate: onEdit} = useCustomMutation(
         ({stayId, newDateFin}) => editStay(stayId, newDateFin),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Séjour modifié",
@@ -95,7 +96,7 @@ export function StaysManagement() {
 
     const {mutate: moveStudentMutation} = useCustomMutation(
         (data: MoveStudentData) => moveStudent(data),
-        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents']],
+        [['stays'], ['availableRooms'], ['rooms'], ['students'], ['availableStudents'], ['floors']],
         {
             onSuccess: () => toast({
                 title: "Étudiant déplacé",
@@ -163,6 +164,11 @@ export function StaysManagement() {
         )
         : [];
 
+    const resetDateSearch = () => {
+        setSearchStartDate(undefined)
+        setSearchEndDate(undefined)
+    }
+
     if (staysLoading || roomsLoading || studentsLoading || !stays || !rooms || !students || !availableRooms || !availableStudents) {
         return <div>Loading...</div>
     }
@@ -178,13 +184,13 @@ export function StaysManagement() {
                 setSearchEndDate={setSearchEndDate}
                 availableRooms={availableRooms}
                 handleRoomClick={handleRoomClick}
+                resetSearch={resetDateSearch}
             />
 
             <Separator className="my-4"/>
 
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Séjours actuels</h2>
                     <AddStayForm
                         isAddStayModalOpen={isAddStayModalOpen}
                         setIsAddStayModalOpen={setIsAddStayModalOpen}
@@ -195,10 +201,11 @@ export function StaysManagement() {
                     />
                 </div>
 
-                <StaysTable stays={filteredStays}
-                            onDelete={handleDeleteStay}
-                            onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}
-                            onMove={moveStudentMutation}/> {/* Pass the delete handler */}
+                {/*<StaysTable stays={filteredStays}*/}
+                {/*            onDelete={handleDeleteStay}*/}
+                {/*            onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}*/}
+                {/*            onMove={moveStudentMutation}/> /!* Pass the delete handler *!/*/}
+                <RoomManagementInterface/>
             </div>
         </div>
     )

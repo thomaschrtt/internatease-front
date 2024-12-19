@@ -1,8 +1,10 @@
 import {Dialog, DialogContent, DialogTitle} from "@/components/ui/dialog"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Button} from "@/components/ui/button"
 import {Label} from "@/components/ui/label"
-import {formatDate} from "@/lib/utils";
+import {cn} from "@/lib/utils";
+import {useEffect, useState} from "react";
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
+import {Check} from "lucide-react";
 
 type AddStayFormProps = {
     isAddStayModalOpen: boolean
@@ -21,32 +23,70 @@ export function AddStayForm({
                                 setNewStay,
                                 handleAddStay,
                             }: AddStayFormProps) {
+    const [searchTerm, setSearchTerm] = useState('')
+    const [filteredStudents, setFilteredStudents] = useState<AvailableEtudiant[]>(students)
+
+    useEffect(() => {
+        const lowercasedSearch = searchTerm.toLowerCase()
+        const filtered = students.filter(student =>
+            `${student.nom} ${student.prenom}`.toLowerCase().includes(lowercasedSearch)
+        )
+        setFilteredStudents(filtered)
+    }, [searchTerm, students])
+
+    const formatDate = (date: Date | null) => {
+        return date ? date.toLocaleDateString() : 'Non spécifié'
+    }
+
+    newStay = newStay || {}
+
+
     return (
         <Dialog open={isAddStayModalOpen} onOpenChange={setIsAddStayModalOpen}>
             <DialogContent>
                 <DialogTitle>
-                    Étudiant à rajouter dans la chambre {newStay.chambre?.numero_chambre} du {formatDate(newStay.date_debut || null)} au {formatDate(newStay.date_fin || null)}
+                    Étudiant à rajouter dans la chambre {newStay.chambre?.numero_chambre} du {formatDate(newStay.date_debut)} au {formatDate(newStay.date_fin)}
                 </DialogTitle>
 
                 <form onSubmit={handleAddStay} className="space-y-4">
-                    <div>
-                        <Label htmlFor="student">Étudiant</Label>
-                        <Select
-                            onValueChange={(value) => setNewStay(prev => ({...prev, etudiant_id: parseInt(value)}))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Choisissez un étudiant"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {students.map(student => (
-                                    <SelectItem key={student.etudiant_id}
-                                                value={student.etudiant_id.toString()}>{student.nom} {student.prenom}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-2">
+                        <Label htmlFor="student-search">Rechercher un étudiant</Label>
+                        <Command className="rounded-lg border shadow-md">
+                            <CommandInput
+                                placeholder="Rechercher un étudiant..."
+                                value={searchTerm}
+                                onValueChange={setSearchTerm}
+                            />
+                            <CommandList>
+                                <CommandEmpty>Aucun étudiant trouvé.</CommandEmpty>
+                                <CommandGroup className="max-h-64 overflow-y-auto">
+                                    {filteredStudents.map((student) => (
+                                        <CommandItem
+                                            key={student.etudiant_id}
+                                            value={`${student.etudiant_id}-${student.nom} ${student.prenom}`}
+                                            onSelect={() => {
+                                                setNewStay({ ...(newStay || {}), etudiant_id: student.etudiant_id })
+                                                setSearchTerm(`${student.nom} ${student.prenom}`)
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    newStay.etudiant_id === student.etudiant_id ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                            {student.nom} {student.prenom} - {student.nom_classe}
+                                        </CommandItem>
+                                    ))}
+
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+
                     </div>
-                    <Button type="submit">Assigner</Button>
+                    <Button type="submit" disabled={!newStay.etudiant_id}>Assigner</Button>
                 </form>
             </DialogContent>
         </Dialog>
-    );
+    )
 }

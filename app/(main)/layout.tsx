@@ -33,8 +33,8 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
         <QueryProvider>
+            <Nav/>
             <div className="flex h-screen overflow-hidden" suppressHydrationWarning={true}>
-                <Nav/>
                 <main className="flex-1 overflow-y-auto pt-16 md:pl-64">
                     <div className="container mx-auto p-4 md:p-8">
                         {children}

@@ -6,6 +6,8 @@ import {Label} from "@/components/ui/label"
 import {cn} from "@/lib/utils"
 import {format} from 'date-fns'
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {useEffect, useState} from "react";
+import {toast} from "@/hooks/use-toast";
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined
@@ -14,6 +16,7 @@ type RoomSearchProps = {
     setSearchEndDate: (date: Date | undefined) => void
     availableRooms: AvailableChambre[]
     handleRoomClick: (roomId: number, roomNumber: string) => void // New function to handle room click
+    resetSearch: () => void
 }
 
 export function RoomSearch({
@@ -22,8 +25,43 @@ export function RoomSearch({
                                setSearchStartDate,
                                setSearchEndDate,
                                availableRooms,
-                               handleRoomClick // Added handler for room click
+                               handleRoomClick,
+                               resetSearch
                            }: RoomSearchProps) {
+    const [visibleCount, setVisibleCount] = useState(6);
+
+    // Deux champs de recherche :
+    const [searchRoomNumber, setSearchRoomNumber] = useState("");
+    const [searchPlaces, setSearchPlaces] = useState("");
+
+    const handleLoadMore = () => {
+        setVisibleCount(prev => prev + 6);
+    };
+
+    useEffect(() => {
+        setVisibleCount(6);
+    }, [searchStartDate, searchEndDate]);
+
+    // Calcul du maximum de places restantes parmi les chambres disponibles
+    const maxRemainingPlaces = availableRooms.length > 0
+        ? Math.max(...availableRooms.map(room => room.capacite - room.occ_count))
+        : 0;
+
+    // Filtrage des chambres
+    const filteredRooms = availableRooms.filter(room => {
+        const remainingPlaces = room.capacite - room.occ_count;
+
+        const matchesRoom = searchRoomNumber === ""
+            || room.numero_chambre.toString().includes(searchRoomNumber);
+
+        const matchesPlaces = searchPlaces === ""
+            || (parseInt(searchPlaces, 10) === remainingPlaces);
+
+        return matchesRoom && matchesPlaces;
+    });
+
+    const roomsToDisplay = filteredRooms.slice(0, visibleCount);
+
     return (
         <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Rechercher chambres libres</h2>
@@ -39,7 +77,7 @@ export function RoomSearch({
                                     !searchStartDate && "text-muted-foreground"
                                 )}
                             >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-4 w-4"/>
                                 {searchStartDate ? format(searchStartDate, "PPP") : <span>Choisissez une date</span>}
                             </Button>
                         </PopoverTrigger>
@@ -47,7 +85,17 @@ export function RoomSearch({
                             <Calendar
                                 mode="single"
                                 selected={searchStartDate}
-                                onSelect={setSearchStartDate}
+                                onSelect={(date) => {
+                                    if (date && searchEndDate && date >= searchEndDate) {
+                                        toast({
+                                            title: 'Erreur',
+                                            description: 'La date de début ne peut pas être postérieure ou égale à la date de fin',
+                                            variant: 'destructive'
+                                        });
+                                        return;
+                                    }
+                                    setSearchStartDate(date);
+                                }}
                                 initialFocus
                             />
                         </PopoverContent>
@@ -65,7 +113,7 @@ export function RoomSearch({
                                     !searchEndDate && "text-muted-foreground"
                                 )}
                             >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-4 w-4"/>
                                 {searchEndDate ? format(searchEndDate, "PPP") : <span>Choisissez une date</span>}
                             </Button>
                         </PopoverTrigger>
@@ -73,21 +121,69 @@ export function RoomSearch({
                             <Calendar
                                 mode="single"
                                 selected={searchEndDate}
-                                onSelect={setSearchEndDate}
+                                onSelect={(date) => {
+                                    if (date && searchStartDate && date <= searchStartDate) {
+                                        toast({
+                                            title: 'Erreur',
+                                            description: 'La date de fin ne peut pas être antérieure ou égale à la date de début',
+                                            variant: 'destructive'
+                                        });
+                                        return;
+                                    }
+                                    setSearchEndDate(date);
+                                }}
                                 initialFocus
                             />
                         </PopoverContent>
                     </Popover>
                 </div>
 
+                <div>
+                    <Button onClick={resetSearch}>Réinitialiser</Button>
+                </div>
             </div>
 
             {availableRooms.length > 0 && (
                 <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
+
+                    {/* Champs de recherche */}
+                    <div className="flex gap-4 mb-4">
+                        <div className="flex-1">
+                            <Label htmlFor="search-room-number">Rechercher par numéro de chambre</Label>
+                            <input
+                                id="search-room-number"
+                                type="text"
+                                placeholder="Ex: 101"
+                                className="border border-gray-300 rounded-md p-2 w-full"
+                                value={searchRoomNumber}
+                                onChange={e => setSearchRoomNumber(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex-1">
+                            <Label htmlFor="search-places">Nombre de places restantes</Label>
+                            {maxRemainingPlaces > 0 ? (
+                                <select
+                                    id="search-places"
+                                    className="border border-gray-300 rounded-md p-2 w-full"
+                                    value={searchPlaces}
+                                    onChange={e => setSearchPlaces(e.target.value)}
+                                >
+                                    <option value="">Toutes</option>
+                                    {Array.from({ length: maxRemainingPlaces }, (_, i) => i + 1).map(val => (
+                                        <option key={val} value={val}>{val}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <p>Aucune place disponible</p>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {availableRooms.map(room => {
-                            const remainingPlaces = room.capacite;
+                        {roomsToDisplay.map(room => {
+                            const remainingPlaces = room.capacite - room.occ_count;
                             return (
                                 <Card
                                     key={room.chambre_id}
@@ -95,7 +191,7 @@ export function RoomSearch({
                                     onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
                                 >
                                     <CardHeader>
-                                        <CardTitle>Chambre {room.numero_chambre} </CardTitle>
+                                        <CardTitle>Chambre {room.numero_chambre}</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-gray-700">
@@ -108,9 +204,16 @@ export function RoomSearch({
                             );
                         })}
                     </div>
+
+                    {visibleCount < filteredRooms.length && (
+                        <div className="mt-4 flex justify-center">
+                            <Button onClick={handleLoadMore}>
+                                Charger plus
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
-
         </div>
-    )
+    );
 }

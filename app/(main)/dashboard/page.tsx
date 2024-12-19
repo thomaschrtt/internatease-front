@@ -5,7 +5,6 @@ export default function DashboardPage() {
         <div>
 
             <StaysManagement/>
-
         </div>
     );
 }

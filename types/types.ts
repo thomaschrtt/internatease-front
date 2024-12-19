@@ -28,6 +28,7 @@ type AvailableChambre = {
     capacite: number;
     type_special: string | null;
     bloc_id: number;
+    occ_count: number;
 }
 
 type AvailableEtudiant = {
@@ -35,8 +36,9 @@ type AvailableEtudiant = {
     nom: string,
     prenom: string,
     genre: string,
-    num_etu: number,
+    num_etu: string,
     classe_id: number,
+    nom_classe: string,
     internat_weekend: boolean
 }
 
@@ -61,6 +63,7 @@ type Etage = {
     id: number;
     numero_etage: number;
     genre: string | null; // Enum Genre en tant que string
+    blocs: Bloc[]; // Liste de blocs
 };
 
 // Type pour l'entité Etudiant
@@ -71,7 +74,7 @@ type Etudiant = {
     internat_weekend: boolean;
     genre: string;
     occupations: Occupation[]; // Liste d'occupations
-    num_etu: number;
+    num_etu: string;
     classe: Classe;
     classe_id: number;
 };

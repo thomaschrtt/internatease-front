@@ -37,9 +37,33 @@ export const fetchBlocs: () => Promise<Bloc[]> = async () => {
 export const fetchEtages: () => Promise<Etage[]> = async () => {
     const supabase = await createClient();
     try {
+        const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD" format
         const {data: etage, error} = await supabase
             .from('etage')
-            .select('*')
+            .select('*, blocs:bloc(*, chambres:chambre(*, bloc:bloc(*, etage:etage(*)), occupations:occupation(*, etudiant:etudiant(*, classe:classe(*)))))')
+            .lte('blocs.chambres.occupations.date_debut', today)
+            .gt('blocs.chambres.occupations.date_fin', today)
+
+        if (error) {
+            console.error('Error fetching floors:', error)
+            return []
+        }
+        return etage as Etage[]
+    } catch (error) {
+        console.error('Error fetching floors:', error)
+        return []
+    }
+}
+
+export async function  fetchEtageForSpecificDate (date: string): Promise<Etage[]>  {
+    const supabase = await createClient();
+    try {
+        const {data: etage, error} = await supabase
+            .from('etage')
+            .select('*, blocs:bloc(*, chambres:chambre(*, bloc:bloc(*, etage:etage(*)), occupations:occupation(*, etudiant:etudiant(*, classe:classe(*)))))')
+            .lte('blocs.chambres.occupations.date_debut', date)
+            .gt('blocs.chambres.occupations.date_fin', date)
+
         if (error) {
             console.error('Error fetching floors:', error)
             return []

@@ -1,67 +1,44 @@
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
-import {AlertCircle} from "lucide-react";
-import {useRouter} from "next/navigation";
+'use client'
 
-type RoomCardProps = {
-    room: Chambre;
-    handleRoomHover: (roomId: string) => void;
-    setHoveredRoom: (roomId: string | null) => void;
-};
+import React from 'react'
+import {Card, CardContent} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
+import {Dialog, DialogTrigger,} from "@/components/ui/dialog"
+import {Accessibility} from 'lucide-react'
+import {RoomInfoDialog} from "@/components/room/room-info-dialog";
 
-export const RoomCard = ({
-                             room,
-                             handleRoomHover,
-                             setHoveredRoom,
-                         }: RoomCardProps) => {
-    const router = useRouter(); // Use the Next.js router
+const RoomCard = ({room}: { room: Chambre }) => {
+    const occupancyPercentage = (room.occupations.length / room.capacite) * 100
 
-    const handleCardClick = () => {
-        router.push(`/chambres/${room.id}`); // Redirect to the room detail page
-    };
     return (
-        <TooltipProvider key={room.id}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Card
-                        className="cursor-pointer h-[200px] flex flex-col justify-between" // Adjust card height to align content
-                        onMouseEnter={() => handleRoomHover(room.id.toString())}
-                        onMouseLeave={() => setHoveredRoom(null)}
-                        onClick={handleCardClick} // Handle the click event to redirect
-                    >
-                        <CardHeader>
-                            <CardTitle>Chambre {room.numero_chambre}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col justify-between">
-                            <div>
-                                <p>Bloc: {room.bloc.nom_bloc}</p>
-                                <p>Etage: {room.bloc.etage.numero_etage}</p>
-                                <p>Capacité: {room.capacite}</p>
-                            </div>
+        <Dialog>
+            <DialogTrigger asChild>
+                <Card className="w-full h-auto cursor-pointer hover:bg-accent transition-colors relative">
+                    <CardContent className="p-4 flex flex-col items-center justify-center">
+                        <div className="text-lg font-semibold">{room.numero_chambre}</div>
+                        <Badge
+                            variant={
+                                occupancyPercentage === 100
+                                    ? "destructive"
+                                    : occupancyPercentage > 0
+                                        ? "default"
+                                        : "secondary"
+                            }
+                            className="mt-2"
+                        >
+                            {room.occupations.length}/{room.capacite}
+                        </Badge>
+                    </CardContent>
+                    {room.type_special && (
+                        <div className="absolute top-1 right-1">
+                            <Accessibility className="h-4 w-4 text-blue-500"/>
+                        </div>
+                    )}
+                </Card>
+            </DialogTrigger>
+            <RoomInfoDialog room={room}/>
+        </Dialog>
+    )
+}
 
-                            {/* Reserve space for special type even if not present */}
-                            <div className="min-h-[24px] flex items-center">
-                                {room.type_special ? (
-                                    <p className="text-yellow-600">
-                                        <AlertCircle className="inline mr-1 h-4 w-4" />
-                                        {room.type_special}
-                                    </p>
-                                ) : (
-                                    <span />
-                                    )}
-                            </div>
-
-                            {/*<Progress value={(room.etudiants.length / room.capacite) * 100} className="mt-2" />*/}
-                        </CardContent>
-                    </Card>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <div className="p-2">
-                        <h3 className="font-bold mb-2">Chambre {room.numero_chambre}</h3>
-                    </div>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-
-    );
-};
+export default RoomCard
