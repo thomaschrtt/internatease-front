@@ -205,7 +205,7 @@ export function StaysManagement() {
                 {/*            onDelete={handleDeleteStay}*/}
                 {/*            onEdit={(stayId: number, newDateFin: string) => onEdit({stayId, newDateFin})}*/}
                 {/*            onMove={moveStudentMutation}/> /!* Pass the delete handler *!/*/}
-                <RoomManagementInterface/>
+                <RoomManagementInterface handleDeleteStay={handleDeleteStay}/>
             </div>
         </div>
     )
