@@ -148,12 +148,6 @@ export function StaysManagement() {
 
 
     const handleDeleteStay = async (stayId: number) => {
-        const isConfirmed = window.confirm("Êtes-vous sûr de vouloir supprimer ce séjour ?");
-
-        if (!isConfirmed) {
-            return; // Si l'utilisateur annule, on arrête la fonction ici
-        }
-
         deleteStayMutation({stayId})
 
     };
