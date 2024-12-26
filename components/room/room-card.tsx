@@ -7,7 +7,7 @@ import {Dialog, DialogTrigger,} from "@/components/ui/dialog"
 import {Accessibility} from 'lucide-react'
 import {RoomInfoDialog} from "@/components/room/room-info-dialog";
 
-const RoomCard = ({room}: { room: Chambre }) => {
+const RoomCard = ({room, handleDeleteStay}: { room: Chambre, handleDeleteStay:  (stayId: number) => Promise<void> }) => {
     const occupancyPercentage = (room.occupations.length / room.capacite) * 100
 
     return (
@@ -36,7 +36,7 @@ const RoomCard = ({room}: { room: Chambre }) => {
                     )}
                 </Card>
             </DialogTrigger>
-            <RoomInfoDialog room={room}/>
+            <RoomInfoDialog room={room} handleDeleteStay={handleDeleteStay}/>
         </Dialog>
     )
 }

@@ -10,7 +10,7 @@ import {fetchEtageForSpecificDate} from "@/api/chambreAPI";
 import RoomCard from "@/components/room/room-card";
 import {Skeleton} from "@/components/ui/skeleton";
 
-const RoomManagementInterface = () => {
+const RoomManagementInterface = ({handleDeleteStay}: {handleDeleteStay: (stayId: number) => Promise<void>}) => {
     const [selectedFloor, setSelectedFloor] = useState('1')
     const [date, setDate] = useState<Date>(new Date())
 
@@ -137,7 +137,7 @@ const RoomManagementInterface = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4 place-items-center">
                                         {bloc.chambres.sort((a, b) => a.numero_chambre - b.numero_chambre)
                                             .map((room) => (
-                                                <RoomCard key={room.id} room={room}/>
+                                                <RoomCard key={room.id} room={room} handleDeleteStay={handleDeleteStay}/>
                                             ))
                                         }
                                     </div>
