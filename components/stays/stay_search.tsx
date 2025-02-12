@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react'
-import {CalendarIcon, Search} from 'lucide-react'
+import {CalendarIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search} from 'lucide-react'
 import {Button} from "@/components/ui/button"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Calendar} from "@/components/ui/calendar"
@@ -9,6 +9,7 @@ import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/c
 import {cn} from "@/lib/utils"
 import {format} from 'date-fns'
 import {toast} from "@/hooks/use-toast"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined
@@ -34,6 +35,7 @@ export function RoomSearch({
     const [sortBy, setSortBy] = useState<"etage" | "placesRestantes">("etage")
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
+
     const filteredAndSortedRooms = useMemo(() => {
         return availableRooms
             .filter(room => {
@@ -52,6 +54,20 @@ export function RoomSearch({
                 }
             })
     }, [availableRooms, searchRoomNumber, searchPlaces, sortBy, sortOrder])
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(10)
+
+    const indexOfLastItem = currentPage * itemsPerPage
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage
+    const currentItems = filteredAndSortedRooms.slice(indexOfFirstItem, indexOfLastItem)
+
+    const totalPages = Math.ceil(filteredAndSortedRooms.length / itemsPerPage)
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber)
+    }
+
 
     const handleSort = (column: "etage" | "placesRestantes") => {
         if (sortBy === column) {
@@ -184,34 +200,102 @@ export function RoomSearch({
                         </div>
                     </div>
 
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Numéro de chambre</TableHead>
-                                <TableHead className="cursor-pointer" onClick={() => handleSort("etage")}>
-                                    Étage / Bloc {sortBy === "etage" && (sortOrder === "asc" ? "↑" : "↓")}
-                                </TableHead>
-                                <TableHead className="cursor-pointer" onClick={() => handleSort("placesRestantes")}>
-                                    Places restantes {sortBy === "placesRestantes" && (sortOrder === "asc" ? "↑" : "↓")}
-                                </TableHead>
-                                <TableHead>Capacité max</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredAndSortedRooms.map(room => (
-                                <TableRow
-                                    key={room.chambre_id}
-                                    className="cursor-pointer hover:bg-muted/50"
-                                    onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
-                                >
-                                    <TableCell>{room.numero_chambre}</TableCell>
-                                    <TableCell>{room.numero_etage} / {room.nom_bloc}</TableCell>
-                                    <TableCell>{room.capacite - room.occ_count}</TableCell>
-                                    <TableCell>{room.capacite}</TableCell>
+                    <div className="space-y-4">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Numéro de chambre</TableHead>
+                                    <TableHead className="cursor-pointer" onClick={() => handleSort("etage")}>
+                                        Étage / Bloc {sortBy === "etage" && (sortOrder === "asc" ? "↑" : "↓")}
+                                    </TableHead>
+                                    <TableHead className="cursor-pointer" onClick={() => handleSort("placesRestantes")}>
+                                        Places
+                                        restantes {sortBy === "placesRestantes" && (sortOrder === "asc" ? "↑" : "↓")}
+                                    </TableHead>
+                                    <TableHead>Capacité max</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {currentItems.map(room => (
+                                    <TableRow
+                                        key={room.chambre_id}
+                                        className="cursor-pointer hover:bg-muted/50"
+                                        onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
+                                    >
+                                        <TableCell>{room.numero_chambre}</TableCell>
+                                        <TableCell>{room.numero_etage} / {room.nom_bloc}</TableCell>
+                                        <TableCell>{room.capacite - room.occ_count}</TableCell>
+                                        <TableCell>{room.capacite}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <p className="text-sm text-muted-foreground">
+                                    Affichage
+                                    de {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredAndSortedRooms.length)} sur {filteredAndSortedRooms.length} chambres
+                                </p>
+                                <Select
+                                    value={itemsPerPage.toString()}
+                                    onValueChange={(value) => {
+                                        setItemsPerPage(Number(value))
+                                        setCurrentPage(1)
+                                    }}
+                                >
+                                    <SelectTrigger className="w-[70px]">
+                                        <SelectValue placeholder={itemsPerPage}/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[5, 10, 20, 50].map((pageSize) => (
+                                            <SelectItem key={pageSize} value={pageSize.toString()}>
+                                                {pageSize}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronsLeft className="h-4 w-4"/>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4"/>
+                                </Button>
+                                <span className="text-sm text-muted-foreground">
+            Page {currentPage} sur {totalPages}
+          </span>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronRight className="h-4 w-4"/>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(totalPages)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronsRight className="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
