@@ -1,13 +1,15 @@
-import {Calendar as CalendarIcon} from "lucide-react"
+import React, {useMemo, useState} from 'react'
+import {CalendarIcon, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search} from 'lucide-react'
 import {Button} from "@/components/ui/button"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Calendar} from "@/components/ui/calendar"
 import {Label} from "@/components/ui/label"
+import {Input} from "@/components/ui/input"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {cn} from "@/lib/utils"
 import {format} from 'date-fns'
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {useEffect, useState} from "react";
-import {toast} from "@/hooks/use-toast";
+import {toast} from "@/hooks/use-toast"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 type RoomSearchProps = {
     searchStartDate: Date | undefined
@@ -15,7 +17,7 @@ type RoomSearchProps = {
     setSearchStartDate: (date: Date | undefined) => void
     setSearchEndDate: (date: Date | undefined) => void
     availableRooms: AvailableChambre[]
-    handleRoomClick: (roomId: number, roomNumber: string) => void // New function to handle room click
+    handleRoomClick: (roomId: number, roomNumber: string) => void
     resetSearch: () => void
 }
 
@@ -28,50 +30,65 @@ export function RoomSearch({
                                handleRoomClick,
                                resetSearch
                            }: RoomSearchProps) {
-    const [visibleCount, setVisibleCount] = useState(6);
+    const [searchRoomNumber, setSearchRoomNumber] = useState("")
+    const [searchPlaces, setSearchPlaces] = useState("")
+    const [sortBy, setSortBy] = useState<"etage" | "placesRestantes">("etage")
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
-    // Deux champs de recherche :
-    const [searchRoomNumber, setSearchRoomNumber] = useState("");
-    const [searchPlaces, setSearchPlaces] = useState("");
 
-    const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 6);
-    };
+    const filteredAndSortedRooms = useMemo(() => {
+        return availableRooms
+            .filter(room => {
+                const remainingPlaces = room.capacite - room.occ_count
+                const matchesRoom = searchRoomNumber === "" || room.numero_chambre.toString().startsWith(searchRoomNumber)
+                const matchesPlaces = searchPlaces === "" || (parseInt(searchPlaces, 10) <= remainingPlaces)
+                return matchesRoom && matchesPlaces
+            })
+            .sort((a, b) => {
+                if (sortBy === "etage") {
+                    return sortOrder === "asc" ? a.numero_etage - b.numero_etage : b.numero_etage - a.numero_etage
+                } else {
+                    const aPlaces = a.capacite - a.occ_count
+                    const bPlaces = b.capacite - b.occ_count
+                    return sortOrder === "asc" ? aPlaces - bPlaces : bPlaces - aPlaces
+                }
+            })
+    }, [availableRooms, searchRoomNumber, searchPlaces, sortBy, sortOrder])
 
-    useEffect(() => {
-        setVisibleCount(6);
-    }, [searchStartDate, searchEndDate]);
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(10)
 
-    // Calcul du maximum de places restantes parmi les chambres disponibles
-    const maxRemainingPlaces = availableRooms.length > 0
-        ? Math.max(...availableRooms.map(room => room.capacite - room.occ_count))
-        : 0;
+    const indexOfLastItem = currentPage * itemsPerPage
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage
+    const currentItems = filteredAndSortedRooms.slice(indexOfFirstItem, indexOfLastItem)
 
-    // Filtrage des chambres
-    const filteredRooms = availableRooms.filter(room => {
-        const remainingPlaces = room.capacite - room.occ_count;
+    const totalPages = Math.ceil(filteredAndSortedRooms.length / itemsPerPage)
 
-        const matchesRoom = searchRoomNumber === ""
-            || room.numero_chambre.toString().includes(searchRoomNumber);
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber)
+    }
 
-        const matchesPlaces = searchPlaces === ""
-            || (parseInt(searchPlaces, 10) === remainingPlaces);
 
-        return matchesRoom && matchesPlaces;
-    });
-
-    const roomsToDisplay = filteredRooms.slice(0, visibleCount);
+    const handleSort = (column: "etage" | "placesRestantes") => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+        } else {
+            setSortBy(column)
+            setSortOrder("asc")
+        }
+    }
 
     return (
-        <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Rechercher chambres libres</h2>
+        <div className="space-y-6">
+            <h2 className="text-2xl font-semibold">Rechercher chambres libres</h2>
+
             <div className="flex flex-wrap gap-4 items-end">
                 <div className="flex-1">
                     <Label htmlFor="start-date">Date d&#39;arrivée</Label>
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
-                                variant={"outline"}
+                                variant="outline"
                                 className={cn(
                                     "w-full justify-start text-left font-normal",
                                     !searchStartDate && "text-muted-foreground"
@@ -91,10 +108,10 @@ export function RoomSearch({
                                             title: 'Erreur',
                                             description: 'La date de début ne peut pas être postérieure ou égale à la date de fin',
                                             variant: 'destructive'
-                                        });
-                                        return;
+                                        })
+                                        return
                                     }
-                                    setSearchStartDate(date);
+                                    setSearchStartDate(date)
                                 }}
                                 initialFocus
                             />
@@ -107,7 +124,7 @@ export function RoomSearch({
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
-                                variant={"outline"}
+                                variant="outline"
                                 className={cn(
                                     "w-full justify-start text-left font-normal",
                                     !searchEndDate && "text-muted-foreground"
@@ -127,10 +144,10 @@ export function RoomSearch({
                                             title: 'Erreur',
                                             description: 'La date de fin ne peut pas être antérieure ou égale à la date de début',
                                             variant: 'destructive'
-                                        });
-                                        return;
+                                        })
+                                        return
                                     }
-                                    setSearchEndDate(date);
+                                    setSearchEndDate(date)
                                 }}
                                 initialFocus
                             />
@@ -138,82 +155,149 @@ export function RoomSearch({
                     </Popover>
                 </div>
 
-                <div>
-                    <Button onClick={resetSearch}>Réinitialiser</Button>
-                </div>
+                <Button onClick={resetSearch}>Réinitialiser</Button>
             </div>
 
             {availableRooms.length > 0 && (
-                <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-4">Chambres libres :</h3>
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Chambres libres :</h3>
 
-                    {/* Champs de recherche */}
-                    <div className="flex gap-4 mb-4">
-                        <div className="flex-1">
-                            <Label htmlFor="search-room-number">Rechercher par numéro de chambre</Label>
-                            <input
-                                id="search-room-number"
-                                type="text"
-                                placeholder="Ex: 101"
-                                className="border border-gray-300 rounded-md p-2 w-full"
-                                value={searchRoomNumber}
-                                onChange={e => setSearchRoomNumber(e.target.value)}
-                            />
-                        </div>
+                    <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row gap-6">
+                            <div className="flex-1">
+                                <Label htmlFor="search-room-number" className="text-sm font-medium">
+                                    Numéro de chambre
+                                </Label>
+                                <div className="mt-1 relative">
+                                    <Search
+                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
+                                    <Input
+                                        id="search-room-number"
+                                        className="pl-10"
+                                        placeholder="Ex: 101"
+                                        value={searchRoomNumber}
+                                        onChange={(e) => setSearchRoomNumber(e.target.value)}
+                                    />
+                                </div>
+                            </div>
 
-                        <div className="flex-1">
-                            <Label htmlFor="search-places">Nombre de places restantes</Label>
-                            {maxRemainingPlaces > 0 ? (
-                                <select
-                                    id="search-places"
-                                    className="border border-gray-300 rounded-md p-2 w-full"
-                                    value={searchPlaces}
-                                    onChange={e => setSearchPlaces(e.target.value)}
-                                >
-                                    <option value="">Toutes</option>
-                                    {Array.from({ length: maxRemainingPlaces }, (_, i) => i + 1).map(val => (
-                                        <option key={val} value={val}>{val}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <p>Aucune place disponible</p>
-                            )}
+                            <div className="flex-1 space-y-6 sm:space-y-0 sm:flex sm:gap-4">
+                                <div className="flex-1">
+                                    <Label htmlFor="search-places-min" className="text-sm font-medium">
+                                        Places restantes min
+                                    </Label>
+                                    <Input
+                                        type="number"
+                                        id="search-places-min"
+                                        className="mt-1"
+                                        value={searchPlaces}
+                                        onChange={(e) => setSearchPlaces(e.target.value)}
+                                        placeholder="Min"
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {roomsToDisplay.map(room => {
-                            const remainingPlaces = room.capacite - room.occ_count;
-                            return (
-                                <Card
-                                    key={room.chambre_id}
-                                    className="shadow-lg transition transform hover:scale-105 hover:shadow-xl hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
-                                >
-                                    <CardHeader>
-                                        <CardTitle>Chambre {room.numero_chambre}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-gray-700">
-                                            {remainingPlaces > 0
-                                                ? `Peut loger ${remainingPlaces} étudiant${remainingPlaces > 1 ? 's' : ''}`
-                                                : "Aucune place disponible"}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
+                    <div className="space-y-4">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Numéro de chambre</TableHead>
+                                    <TableHead className="cursor-pointer" onClick={() => handleSort("etage")}>
+                                        Étage / Bloc {sortBy === "etage" && (sortOrder === "asc" ? "↑" : "↓")}
+                                    </TableHead>
+                                    <TableHead className="cursor-pointer" onClick={() => handleSort("placesRestantes")}>
+                                        Places
+                                        restantes {sortBy === "placesRestantes" && (sortOrder === "asc" ? "↑" : "↓")}
+                                    </TableHead>
+                                    <TableHead>Capacité max</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {currentItems.map(room => (
+                                    <TableRow
+                                        key={room.chambre_id}
+                                        className="cursor-pointer hover:bg-muted/50"
+                                        onClick={() => handleRoomClick(room.chambre_id, room.numero_chambre.toString())}
+                                    >
+                                        <TableCell>{room.numero_chambre}</TableCell>
+                                        <TableCell>{room.numero_etage} / {room.nom_bloc}</TableCell>
+                                        <TableCell>{room.capacite - room.occ_count}</TableCell>
+                                        <TableCell>{room.capacite}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
 
-                    {visibleCount < filteredRooms.length && (
-                        <div className="mt-4 flex justify-center">
-                            <Button onClick={handleLoadMore}>
-                                Charger plus
-                            </Button>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <p className="text-sm text-muted-foreground">
+                                    Affichage
+                                    de {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredAndSortedRooms.length)} sur {filteredAndSortedRooms.length} chambres
+                                </p>
+                                <Select
+                                    value={itemsPerPage.toString()}
+                                    onValueChange={(value) => {
+                                        setItemsPerPage(Number(value))
+                                        setCurrentPage(1)
+                                    }}
+                                >
+                                    <SelectTrigger className="w-[70px]">
+                                        <SelectValue placeholder={itemsPerPage}/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[5, 10, 20, 50].map((pageSize) => (
+                                            <SelectItem key={pageSize} value={pageSize.toString()}>
+                                                {pageSize}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronsLeft className="h-4 w-4"/>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4"/>
+                                </Button>
+                                <span className="text-sm text-muted-foreground">
+            Page {currentPage} sur {totalPages}
+          </span>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronRight className="h-4 w-4"/>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handlePageChange(totalPages)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronsRight className="h-4 w-4"/>
+                                </Button>
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             )}
         </div>
-    );
+    )
 }
