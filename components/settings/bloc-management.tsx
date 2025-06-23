@@ -2,19 +2,10 @@
 
 import { useState } from "react"
 import { Pencil, Trash2 } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,33 +18,41 @@ import {
 } from "@/components/ui/alert-dialog"
 import { PlusIcon } from "@radix-ui/react-icons"
 
+import { BlocDialog, BlocFormData } from "./BlocDialog"
+
 interface BlocManagementProps {
   blocs: Bloc[]
   etages: Etage[]
-  onAdd: (bloc: { nom_bloc: string; etage_id: number }) => Promise<void>
-  onEdit: (id: number, bloc: Partial<Bloc>) => Promise<void>
+  onAdd: (payload: { nom_bloc: string; etage_id: number }) => Promise<void>
+  onEdit: (id: number, payload: Partial<Bloc>) => Promise<void>
   onDelete: (id: number) => Promise<void>
 }
 
-export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocManagementProps) {
+export function BlocManagement({
+  blocs,
+  etages,
+  onAdd,
+  onEdit,
+  onDelete,
+}: BlocManagementProps) {
+  // ---- états --------------------------------------------------------------
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedBloc, setSelectedBloc] = useState<Bloc | null>(null)
-  const [formData, setFormData] = useState<{ nom_bloc: string; etage_id?: number }>({ nom_bloc: "" })
   const [isLoading, setIsLoading] = useState(false)
 
+  const [formData, setFormData] = useState<BlocFormData>({ nom_bloc: "" })
+  const resetForm = () => setFormData({ nom_bloc: "" })
+
+  // ---- handlers -----------------------------------------------------------
   const handleAdd = async () => {
     if (!formData.nom_bloc || !formData.etage_id) return
-
     setIsLoading(true)
     try {
-      await onAdd({
-        nom_bloc: formData.nom_bloc,
-        etage_id: formData.etage_id,
-      })
+      await onAdd({ nom_bloc: formData.nom_bloc, etage_id: formData.etage_id })
       setIsAddDialogOpen(false)
-      setFormData({ nom_bloc: "" })
+      resetForm()
     } finally {
       setIsLoading(false)
     }
@@ -61,13 +60,12 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
 
   const handleEdit = async () => {
     if (!selectedBloc) return
-
     setIsLoading(true)
     try {
       await onEdit(selectedBloc.id, { nom_bloc: formData.nom_bloc })
       setIsEditDialogOpen(false)
       setSelectedBloc(null)
-      setFormData({ nom_bloc: "" })
+      resetForm()
     } finally {
       setIsLoading(false)
     }
@@ -75,7 +73,6 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
 
   const handleDelete = async () => {
     if (!selectedBloc) return
-
     setIsLoading(true)
     try {
       await onDelete(selectedBloc.id)
@@ -86,68 +83,24 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
     }
   }
 
-  const BlocDialog = ({ isOpen, onClose, isEdit = false }) => (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{isEdit ? "Modifier le bloc" : "Ajouter un bloc"}</DialogTitle>
-          <DialogDescription>
-            {isEdit ? "Modifiez les informations du bloc ci-dessous." : "Remplissez les informations du nouveau bloc."}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="nom_bloc">Nom du bloc</Label>
-            <Input
-              id="nom_bloc"
-              value={formData.nom_bloc}
-              onChange={(e) => setFormData({ ...formData, nom_bloc: e.target.value })}
-              placeholder="Ex: A, B, C..."
-            />
-          </div>
-          {!isEdit && (
-            <div className="grid gap-2">
-              <Label htmlFor="etage">Étage</Label>
-              <Select
-                value={formData.etage_id?.toString()}
-                onValueChange={(value) => setFormData({ ...formData, etage_id: Number.parseInt(value) })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un étage" />
-                </SelectTrigger>
-                <SelectContent>
-                  {etages.map((etage) => (
-                    <SelectItem key={etage.id} value={etage.id.toString()}>
-                      Étage {etage.numero_etage}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={isEdit ? handleEdit : handleAdd} disabled={isLoading}>
-            {isLoading ? "Chargement..." : isEdit ? "Modifier" : "Ajouter"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-
+  // ---- rendu --------------------------------------------------------------
   return (
     <div className="space-y-4">
+      {/* Barre d’en-tête ----------------------------------------------------- */}
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-semibold">Gestion des blocs</h3>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
+        <Button
+          onClick={() => {
+            resetForm()
+            setIsAddDialogOpen(true)
+          }}
+        >
           <PlusIcon className="mr-2 h-4 w-4" />
           Ajouter un bloc
         </Button>
       </div>
 
+      {/* Tableau ------------------------------------------------------------ */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -164,6 +117,7 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
               <TableCell>Étage {bloc.etage.numero_etage}</TableCell>
               <TableCell>{bloc.chambres.length}</TableCell>
               <TableCell className="text-right">
+                {/* Éditer */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -175,6 +129,7 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
+                {/* Supprimer */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -191,30 +146,49 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
         </TableBody>
       </Table>
 
+      {/* Dialog ajout ------------------------------------------------------- */}
       <BlocDialog
         isOpen={isAddDialogOpen}
         onClose={() => {
           setIsAddDialogOpen(false)
-          setFormData({ nom_bloc: "" })
+          resetForm()
         }}
+        isLoading={isLoading}
+        formData={formData}
+        onChange={setFormData}
+        onConfirm={handleAdd}
+        etages={etages}
       />
 
+      {/* Dialog édition ----------------------------------------------------- */}
       <BlocDialog
         isOpen={isEditDialogOpen}
         onClose={() => {
           setIsEditDialogOpen(false)
           setSelectedBloc(null)
-          setFormData({ nom_bloc: "" })
+          resetForm()
         }}
         isEdit
+        isLoading={isLoading}
+        formData={formData}
+        onChange={setFormData}
+        onConfirm={handleEdit}
+        etages={etages}   /* inutilisé en édition mais requis par l’API */
       />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      {/* Dialog suppression ------------------------------------------------- */}
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce bloc ?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Êtes-vous sûr de vouloir supprimer ce bloc&nbsp;?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action ne peut pas être annulée. Le bloc et toutes ses chambres seront définitivement supprimés.
+              Cette action est irréversible&nbsp;: le bloc et toutes ses
+              chambres seront définitivement supprimés.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -227,7 +201,7 @@ export function BlocManagement({ blocs, etages, onAdd, onEdit, onDelete }: BlocM
               Annuler
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
-              {isLoading ? "Suppression..." : "Supprimer"}
+              {isLoading ? "Suppression…" : "Supprimer"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

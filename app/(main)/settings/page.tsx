@@ -7,7 +7,7 @@ import {toast} from "@/hooks/use-toast";
 import { ChambreManagement } from "@/components/settings/chambre-management";
 import { BlocManagement } from "@/components/settings/bloc-management";
 import { EtageManagement } from "@/components/settings/etage-management";
-import { addBloc, addEtage, deleteBloc, deleteEtage, editBloc, editEtage, fetchBlocs, fetchEtages, fetchRooms,  } from "@/api/chambreAPI";
+import { addBloc, addEtage, addRoom, deleteBloc, deleteEtage, deleteRoom, editBloc, editEtage, editRoom, fetchBlocs, fetchEtages, fetchRooms,  } from "@/api/chambreAPI";
 
 export default function SettingsPage() {
 
@@ -133,6 +133,45 @@ export default function SettingsPage() {
             }
         }
     )
+
+    const {mutate: handleAddRoom} = useCustomMutation(
+        (roomData: Partial<Chambre>) => addRoom(roomData),
+        [['chambres']],
+        {
+            onSuccess: () => {
+                toast({title: 'Chambre ajoutée', description: 'La chambre a été ajoutée avec succès'})
+            },
+            onError: () => {
+                toast({title: 'Erreur', description: 'Une erreur s\'est produite lors de l\'ajout de la chambre'})
+            }
+        }
+    )
+
+    const {mutate: handleEditRoom} = useCustomMutation(
+        ({id, roomData}) => editRoom(id, roomData),
+        [['chambres']],
+        {
+            onSuccess: () => {
+                toast({title: 'Chambre modifiée', description: 'La chambre a été modifiée avec succès'})
+            },
+            onError: () => {
+                toast({title: 'Erreur', description: 'Une erreur s\'est produite lors de la modification de la chambre'})
+            }
+        }
+    )
+
+    const {mutate: handleDeleteRoom} = useCustomMutation(
+        (id: number) => deleteRoom(id),
+        [['chambres']],
+        {
+            onSuccess: () => {
+                toast({title: 'Chambre supprimée', description: 'La chambre a été supprimée avec succès'})
+            },
+            onError: () => {
+                toast({title: 'Erreur', description: 'Une erreur s\'est produite lors de la suppression de la chambre'})
+            }
+        }
+    )
     
 
     if (!stages || !classes || !etages || !blocs || !chambres) {
@@ -162,6 +201,14 @@ export default function SettingsPage() {
                 onEdit={(id: number, bloc: Partial<Bloc>) => Promise.resolve(handleEditBloc({id, blocData: bloc}))}
                 onDelete={(id: number) => Promise.resolve(handleDeleteBloc(id))}
                 />
+
+            <ChambreManagement
+                chambres={chambres}
+                blocs={blocs}
+                onAdd={(room) => Promise.resolve(handleAddRoom(room))}
+                onEdit={(id: number, room: Partial<Chambre>) => Promise.resolve(handleEditRoom({id, roomData: room}))}
+                onDelete={(id: number) => Promise.resolve(handleDeleteRoom(id))}
+            />
         </div>
     );
 }
