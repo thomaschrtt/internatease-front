@@ -22,7 +22,7 @@ export const fetchBlocs: () => Promise<Bloc[]> = async () => {
     try {
         const {data: bloc, error} = await supabase
             .from('bloc')
-            .select('*, etage:etage(*)')
+            .select('*, etage:etage(*), chambres:chambre(*)')
         if (error) {
             console.error('Error fetching blocks:', error)
             return []
@@ -95,5 +95,71 @@ export const addRoom = async (room: ChambreInsert) => {
     await supabase
         .from('chambre')
         .insert([room])
+        .throwOnError()
+}
+
+export const addBloc = async (bloc: Partial<Etage>) => {
+    const supabase = await createClient();
+    await supabase
+        .from('bloc')
+        .insert([bloc])
+        .throwOnError()
+}
+
+export const addEtage = async (etage: Partial<Etage>) => {
+    const supabase = await createClient();
+    await supabase
+        .from('etage')
+        .insert([etage])
+        .throwOnError()
+}
+
+export const editRoom = async (id: number, room: Partial<Chambre>) => {
+    const supabase = await createClient();
+    await supabase
+        .from('chambre')
+        .update(room)
+        .eq('id', id)
+        .throwOnError()
+}
+
+export const editBloc = async (id: number, bloc: Partial<Bloc>) => {
+    const supabase = await createClient();
+    await supabase
+        .from('bloc')
+        .update(bloc)
+        .eq('id', id)
+        .throwOnError()
+}
+export const editEtage = async (id: number, etage: Partial<Etage>) => {
+    const supabase = await createClient();
+    await supabase
+        .from('etage')
+        .update(etage)
+        .eq('id', id)
+        .throwOnError()
+}
+export const deleteRoom = async (id: number) => {
+    const supabase = await createClient();
+    await supabase
+        .from('chambre')
+        .delete()
+        .eq('id', id)
+        .throwOnError()
+}
+export const deleteBloc = async (id: number) => {
+    const supabase = await createClient();
+    await supabase
+        .from('bloc')
+        .delete()
+        .eq('id', id)
+        .throwOnError()
+}
+export const deleteEtage = async (id: number) => {
+    const supabase = await createClient();
+    await supabase
+        .from('etage')
+        .delete()
+        .eq('id', id)
         .throwOnError()
 }
