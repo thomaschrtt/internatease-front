@@ -8,6 +8,7 @@ import { ChambreManagement } from "@/components/settings/chambre-management";
 import { BlocManagement } from "@/components/settings/bloc-management";
 import { EtageManagement } from "@/components/settings/etage-management";
 import { addBloc, addEtage, addRoom, deleteBloc, deleteEtage, deleteRoom, editBloc, editEtage, editRoom, fetchBlocs, fetchEtages, fetchRooms,  } from "@/api/chambreAPI";
+import { CollapsibleSection } from "@/components/settings/collapsable-element";
 
 export default function SettingsPage() {
 
@@ -178,37 +179,42 @@ export default function SettingsPage() {
         return <div>Loading...</div>
     }
     return (
-        <div>
-            <h1>Settings</h1>
-            <StageManagement
-                stages={stages}
-                classes={classes}
-                onAdd={(stage) => Promise.resolve(addStageMutation(stage))}
-                onEdit={(id: number, stage: Partial<Stage>) => Promise.resolve(editStageMutation({id, stageData: stage}))}
-                onDelete={(id: number) => Promise.resolve(deleteStageMutation(id))}
+        <div className="flex flex-col gap-2">
+            <CollapsibleSection title="Stages" defaultOpen={true}>
+                <StageManagement
+                    stages={stages}
+                    classes={classes}
+                    onAdd={(stage) => Promise.resolve(addStageMutation(stage))}
+                    onEdit={(id: number, stage: Partial<Stage>) => Promise.resolve(editStageMutation({id, stageData: stage}))}
+                    onDelete={(id: number) => Promise.resolve(deleteStageMutation(id))}
+                    />
+            </CollapsibleSection>
+            <CollapsibleSection title="Étages" defaultOpen={true}>
+                <EtageManagement
+                    etages={etages}
+                    onAdd={(etage) => Promise.resolve(handleAddEtage(etage))}
+                    onEdit={(id: number, etage: Partial<Etage>) => Promise.resolve(handleEditEtage({id, etageData: etage}))}
+                    onDelete={(id: number) => Promise.resolve(handleDeleteEtage(id))}
+                    />
+            </CollapsibleSection>
+            <CollapsibleSection title="Blocs" defaultOpen={true}>
+                <BlocManagement
+                    blocs={blocs}
+                    etages={etages}
+                    onAdd={(bloc) => Promise.resolve(handleAddBloc(bloc))}
+                    onEdit={(id: number, bloc: Partial<Bloc>) => Promise.resolve(handleEditBloc({id, blocData: bloc}))}
+                    onDelete={(id: number) => Promise.resolve(handleDeleteBloc(id))}
+                    />
+            </CollapsibleSection>
+            <CollapsibleSection title="Chambres" defaultOpen={true}>
+                <ChambreManagement
+                    chambres={chambres}
+                    blocs={blocs}
+                    onAdd={(room) => Promise.resolve(handleAddRoom(room))}
+                    onEdit={(id: number, room: Partial<Chambre>) => Promise.resolve(handleEditRoom({id, roomData: room}))}
+                    onDelete={(id: number) => Promise.resolve(handleDeleteRoom(id))}
                 />
-            <EtageManagement
-                etages={etages}
-                onAdd={(etage) => Promise.resolve(handleAddEtage(etage))}
-                onEdit={(id: number, etage: Partial<Etage>) => Promise.resolve(handleEditEtage({id, etageData: etage}))}
-                onDelete={(id: number) => Promise.resolve(handleDeleteEtage(id))}
-                />
-
-            <BlocManagement
-                blocs={blocs}
-                etages={etages}
-                onAdd={(bloc) => Promise.resolve(handleAddBloc(bloc))}
-                onEdit={(id: number, bloc: Partial<Bloc>) => Promise.resolve(handleEditBloc({id, blocData: bloc}))}
-                onDelete={(id: number) => Promise.resolve(handleDeleteBloc(id))}
-                />
-
-            <ChambreManagement
-                chambres={chambres}
-                blocs={blocs}
-                onAdd={(room) => Promise.resolve(handleAddRoom(room))}
-                onEdit={(id: number, room: Partial<Chambre>) => Promise.resolve(handleEditRoom({id, roomData: room}))}
-                onDelete={(id: number) => Promise.resolve(handleDeleteRoom(id))}
-            />
+            </CollapsibleSection>
         </div>
     );
 }
