@@ -20,6 +20,7 @@ import {
 import { PlusIcon } from "@radix-ui/react-icons"
 
 import { ChambreDialog, ChambreFormData } from "./ChambreDialog"
+import { Input } from "../ui/input"
 
 interface ChambreManagementProps {
   chambres: Chambre[]
@@ -110,6 +111,8 @@ export function ChambreManagement({
       setIsLoading(false)
     }
   }
+    
+  const [search, setSearch] = useState("")
 
   // ==========================================================
   return (
@@ -117,15 +120,26 @@ export function ChambreManagement({
       {/* ---------- Titre + bouton d’ajout -------------------- */}
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-semibold">Gestion des chambres</h3>
-        <Button
-          onClick={() => {
-            resetForm()
-            setIsAddDialogOpen(true)
-          }}
-        >
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Ajouter une chambre
-        </Button>
+
+        {/* zone recherche + bouton “Ajouter” dans la même ligne */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Rechercher…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-48"
+          />
+
+          <Button
+            onClick={() => {
+              resetForm()
+              setIsAddDialogOpen(true)
+            }}
+          >
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Ajouter une chambre
+          </Button>
+        </div>
       </div>
 
       {/* ------------------ Tableau --------------------------- */}
@@ -141,7 +155,19 @@ export function ChambreManagement({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {chambres.map((chambre) => (
+          {chambres
+            .filter((c) =>
+              [
+                c.numero_chambre?.toString(),
+                c.bloc?.nom_bloc,
+                c.bloc?.etage?.numero_etage?.toString(),
+                c.type_special ?? "standard",
+              ]
+                .join(" ")
+                .toLowerCase()
+                .includes(search.toLowerCase())
+            )
+            .map((chambre) => (
             <TableRow key={chambre.id}>
               <TableCell>{chambre.numero_chambre}</TableCell>
               <TableCell>{chambre.bloc.nom_bloc}</TableCell>
