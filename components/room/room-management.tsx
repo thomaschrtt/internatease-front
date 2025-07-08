@@ -126,7 +126,7 @@ const RoomManagementInterface = ({handleDeleteStay}: {handleDeleteStay: (stayId:
                         <SkeletonLoading />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x">
-                            {selectedFloorData.blocs.map((bloc) => (
+                            {selectedFloorData.blocs.sort((a, b) => a.nom_bloc.localeCompare(b.nom_bloc)).map((bloc) => (
                                 <div key={bloc.id} className="space-y-4 px-4">
                                     {/* Bloc Header */}
                                     <div className="text-xl font-semibold text-center p-2 bg-muted rounded-lg">
