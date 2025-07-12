@@ -98,7 +98,7 @@ export const addRoom = async (room: Partial<Chambre>) => {
         .throwOnError()
 }
 
-export const addBloc = async (bloc: Partial<Etage>) => {
+export const addBloc = async (bloc: Partial<Bloc>) => {
     const supabase = await createClient();
     await supabase
         .from('bloc')
