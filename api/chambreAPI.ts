@@ -116,7 +116,6 @@ export const addEtage = async (etage: Partial<Etage>) => {
 
 export const editRoom = async (id: number, room: Partial<Chambre>) => {
     const supabase = await createClient();
-    console.log('Editing room with ID:', id, 'and data:', room);
     await supabase
         .from('chambre')
         .update(room)
