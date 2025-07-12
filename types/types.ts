@@ -101,3 +101,9 @@ type Stage = {
     date_fin: Date;
     classe: Classe;
 };
+
+type AddStageData = {
+    date_debut: Date;
+    date_fin: Date;
+    classe_id: number;
+}
